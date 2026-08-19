@@ -1,0 +1,18 @@
+@page "/blog"
+@using AsharibKamal.Application.Abstractions
+@inject IPortfolioService Portfolio
+<PageTitle>Blog — Asharib Kamal</PageTitle>
+<section class="page-shell simple-page">
+    <p class="eyebrow">Blog</p>
+    <h1>Practical .NET engineering notes.</h1>
+    <p class="lede">Writing about backend development, APIs, architecture, performance, security and career lessons.</p>
+    <div class="article-grid page-grid">
+        @foreach (var article in Portfolio.GetLatestArticles())
+        {
+            <a class="article-card reveal" href="/blog/@article.Slug">
+                <div class="article-meta"><span>@article.Category</span><span>@article.ReadTime</span></div>
+                <h3>@article.Title</h3><p>@article.Summary</p><span class="text-link">Read article →</span>
+            </a>
+        }
+    </div>
+</section>

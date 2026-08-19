@@ -1,0 +1,19 @@
+@page "/projects"
+@using AsharibKamal.Application.Abstractions
+@inject IPortfolioService Portfolio
+<PageTitle>Projects — Asharib Kamal</PageTitle>
+<section class="page-shell simple-page">
+    <p class="eyebrow">Portfolio</p>
+    <h1>Selected engineering work.</h1>
+    <p class="lede">Enterprise systems, backend platforms and business applications built across different stages of my career.</p>
+    <div class="project-grid page-grid">
+        @foreach (var project in Portfolio.GetFeaturedProjects())
+        {
+            <a class="project-card reveal" href="/projects/@project.Slug">
+                <div class="project-topline"><span>Case study</span><span class="project-arrow">↗</span></div>
+                <div><h3>@project.Title</h3><p>@project.Summary</p></div>
+                <div class="tag-row">@foreach (var tech in project.Technologies) { <span>@tech</span> }</div>
+            </a>
+        }
+    </div>
+</section>

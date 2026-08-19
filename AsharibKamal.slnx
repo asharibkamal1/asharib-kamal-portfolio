@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AsharibKamal.Web/AsharibKamal.Web.csproj" />
+    <Project Path="src/AsharibKamal.Application/AsharibKamal.Application.csproj" />
+    <Project Path="src/AsharibKamal.Domain/AsharibKamal.Domain.csproj" />
+    <Project Path="src/AsharibKamal.Infrastructure/AsharibKamal.Infrastructure.csproj" />
+    <Project Path="src/AsharibKamal.Shared/AsharibKamal.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AsharibKamal.UnitTests/AsharibKamal.UnitTests.csproj" />
+  </Folder>
+</Solution>

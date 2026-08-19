@@ -1,0 +1,28 @@
+@page "/projects/{Slug}"
+@using AsharibKamal.Application.Abstractions
+@using AsharibKamal.Application.DTOs
+@inject IPortfolioService Portfolio
+<PageTitle>@Title — Asharib Kamal</PageTitle>
+<section class="page-shell simple-page">
+    <a class="back-link" href="/projects">← All projects</a>
+    @if (Project is null)
+    {
+        <h1>Project not found</h1>
+    }
+    else
+    {
+        <p class="eyebrow">Case study</p>
+        <h1>@Project.Title</h1>
+        <p class="lede">@Project.Summary</p>
+        <div class="tag-row large-tags">@foreach (var tech in Project.Technologies) { <span>@tech</span> }</div>
+        <div class="case-study-placeholder">
+            <h2>Case study in progress</h2>
+            <p>This first development checkpoint creates the project route and content model. In the next phase we’ll add Problem, Role, Architecture, Challenges, Solution, Impact and Lessons Learned without exposing confidential project details.</p>
+        </div>
+    }
+</section>
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+    private ProjectDto? Project => Portfolio.GetFeaturedProjects().FirstOrDefault(x => x.Slug == Slug);
+    private string Title => Project?.Title ?? "Project";
+}

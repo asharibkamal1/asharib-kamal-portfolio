@@ -1,0 +1,45 @@
+@inherits LayoutComponentBase
+
+<div class="site-shell">
+    <header class="site-header" data-header>
+        <div class="header-inner page-shell">
+            <a class="brand" href="/" aria-label="Asharib Kamal home">
+                <span class="brand-mark">AK</span>
+                <span>Asharib Kamal</span>
+            </a>
+
+            <nav class="desktop-nav" aria-label="Primary navigation">
+                <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+                <NavLink href="/about">About</NavLink>
+                <NavLink href="/projects">Projects</NavLink>
+                <NavLink href="/blog">Blog</NavLink>
+                <NavLink href="/services">Services</NavLink>
+            </nav>
+
+            <a class="button button-small" href="/contact">Let's work together</a>
+        </div>
+    </header>
+
+    <main>@Body</main>
+
+    <footer class="site-footer">
+        <div class="page-shell footer-grid">
+            <div>
+                <p class="brand footer-brand"><span class="brand-mark">AK</span><span>Asharib Kamal</span></p>
+                <p>Senior .NET / Backend Engineer building secure, scalable systems and useful developer products.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/projects">Projects</a>
+                <a href="/blog">Blog</a>
+                <a href="/services">Services</a>
+                <a href="/contact">Contact</a>
+            </div>
+            <div class="footer-links">
+                <a href="https://www.linkedin.com/in/asharibkamal/" target="_blank" rel="noreferrer">LinkedIn</a>
+                <a href="https://appraisalkaro.com/" target="_blank" rel="noreferrer">AppraisalKaro</a>
+                <a href="mailto:asharibkamal1@gmail.com">Email</a>
+            </div>
+        </div>
+        <div class="page-shell footer-bottom">© @DateTime.UtcNow.Year Asharib Kamal. Built with .NET and Blazor.</div>
+    </footer>
+</div>

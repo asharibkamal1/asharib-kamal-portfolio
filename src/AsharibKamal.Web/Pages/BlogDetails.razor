@@ -1,0 +1,28 @@
+@page "/blog/{Slug}"
+@using AsharibKamal.Application.Abstractions
+@using AsharibKamal.Application.DTOs
+@inject IPortfolioService Portfolio
+<PageTitle>@Title — Asharib Kamal</PageTitle>
+<section class="page-shell article-page">
+    <a class="back-link" href="/blog">← All articles</a>
+    @if (Article is null)
+    {
+        <h1>Article not found</h1>
+    }
+    else
+    {
+        <div class="article-header">
+            <p class="eyebrow">@Article.Category · @Article.ReadTime</p>
+            <h1>@Article.Title</h1>
+            <p class="lede">@Article.Summary</p>
+        </div>
+        <article class="prose">
+            <p>This article route is wired and ready for the CMS module. The next checkpoint will replace this placeholder with database-backed Markdown or rich-text content, SEO metadata, tags, related posts and publishing controls.</p>
+        </article>
+    }
+</section>
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+    private BlogPreviewDto? Article => Portfolio.GetLatestArticles().FirstOrDefault(x => x.Slug == Slug);
+    private string Title => Article?.Title ?? "Article";
+}
