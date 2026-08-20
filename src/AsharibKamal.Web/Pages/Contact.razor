@@ -1,13 +1,22 @@
 @page "/contact"
 <PageTitle>Contact — Asharib Kamal</PageTitle>
-<section class="page-shell simple-page contact-page">
-    <div>
-        <p class="eyebrow">Contact</p>
-        <h1>Have a .NET project or opportunity in mind?</h1>
-        <p class="lede">Tell me what you’re working on. The database-backed lead form is part of the next checkpoint; for now, email or LinkedIn are connected.</p>
-        <div class="hero-actions">
-            <a class="button button-primary" href="mailto:asharibkamal1@gmail.com">Email me</a>
-            <a class="button button-ghost" target="_blank" rel="noreferrer" href="https://www.linkedin.com/in/asharibkamal/">LinkedIn ↗</a>
+
+<section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">CONTACT</span><h1>Let's work together.</h1><p>Have a project, opportunity or collaboration in mind? I'd love to hear about it.</p></div></section>
+
+<section class="screen-body page-shell">
+    <div class="contact-layout">
+        <aside class="contact-panel reveal">
+            <span class="section-kicker">GET IN TOUCH</span><h2 style="margin:10px 0 12px">Have a project in mind?</h2><p>Send me the details and I'll get back to you. You can also reach me directly through email or LinkedIn.</p>
+            <div class="contact-links"><a href="mailto:asharibkamal1@gmail.com">Email · asharibkamal1@gmail.com</a><a href="https://www.linkedin.com/in/asharibkamal/" target="_blank" rel="noreferrer">LinkedIn · Asharib Kamal ↗</a><a href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer">GitHub · asharibkamal1 ↗</a><span>Location · Islamabad, Pakistan</span></div>
+        </aside>
+        <div class="contact-form reveal" data-delay="80">
+            <div class="form-grid">
+                <div class="field"><label for="name">Your Name</label><input id="name" placeholder="Your name" /></div>
+                <div class="field"><label for="email">Your Email</label><input id="email" type="email" placeholder="you@company.com" /></div>
+                <div class="field full"><label for="subject">Subject</label><input id="subject" placeholder="Project or opportunity" /></div>
+                <div class="field full"><label for="message">Your Message</label><textarea id="message" placeholder="Tell me a little about what you're working on..."></textarea></div>
+                <div class="field full"><a class="button button-primary" href="mailto:asharibkamal1@gmail.com">Send Message</a></div>
+            </div>
         </div>
     </div>
 </section>
