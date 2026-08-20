@@ -7,114 +7,202 @@
     <meta name="description" content="Asharib Kamal is a Senior .NET / Backend Engineer with 5+ years of experience building secure APIs, enterprise platforms and scalable systems." />
 </HeadContent>
 
-<Hero3D />
+<section class="portfolio-hero">
+    <div class="page-shell portfolio-hero-grid">
+        <div class="portfolio-hero-copy reveal">
+            <span class="section-kicker">PORTFOLIO</span>
+            <h1>Engineering digital products that solve <span>real business problems.</span></h1>
+            <p>I’m Asharib Kamal, a Senior .NET / Backend Engineer with 5+ years of experience building enterprise applications, secure APIs and production systems.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="/projects">View my work <span>→</span></a>
+                <a class="button button-ghost" href="/contact">Start a project</a>
+            </div>
+            <div class="hero-metrics">
+                <div><strong>5+</strong><span>Years Experience</span></div>
+                <div><strong>.NET</strong><span>Backend Specialist</span></div>
+                <div><strong>Enterprise</strong><span>Production Systems</span></div>
+            </div>
+        </div>
 
-<section class="marquee-wrap" aria-label="Core expertise">
-    <div class="marquee-track">
-        <span>C#</span><i>•</i><span>ASP.NET Core</span><i>•</i><span>Web APIs</span><i>•</i><span>SQL Server</span><i>•</i><span>Oracle</span><i>•</i><span>Architecture</span><i>•</i><span>Security</span><i>•</i><span>Performance</span>
-        <span>C#</span><i>•</i><span>ASP.NET Core</span><i>•</i><span>Web APIs</span><i>•</i><span>SQL Server</span><i>•</i><span>Oracle</span><i>•</i><span>Architecture</span><i>•</i><span>Security</span><i>•</i><span>Performance</span>
-    </div>
-</section>
-
-<section class="section page-shell" id="about">
-    <div class="about-grid">
-        <SectionHeading Eyebrow="My approach" Title="Backend depth. Product thinking. Production mindset." Description="I’ve worked across ERP, CRM, transport and national tax systems. That range shaped how I think about software: understand the business, keep the architecture intentional, and optimize for the real production environment." />
-        <div class="principles-grid">
-            <article class="principle-card reveal"><span>01</span><h3>Build for reality</h3><p>Security, failure modes, maintainability and operations are part of the feature.</p></article>
-            <article class="principle-card reveal" data-delay="80"><span>02</span><h3>Keep it simple</h3><p>Architecture should reduce friction, not become another system to maintain.</p></article>
-            <article class="principle-card reveal" data-delay="160"><span>03</span><h3>Own the outcome</h3><p>I care about what reaches users, not only what compiles on my machine.</p></article>
+        <div class="portfolio-profile reveal" data-delay="100">
+            <div class="profile-network" aria-hidden="true"></div>
+            <div class="profile-badge badge-one">.NET 10</div>
+            <div class="profile-badge badge-two">C#</div>
+            <div class="profile-badge badge-three">SQL Server</div>
+            <div class="profile-badge badge-four">Azure</div>
+            <div class="profile-photo-frame">
+                <img src="/images/asharib-kamal.png" alt="Asharib Kamal" loading="eager" />
+            </div>
+            <div class="profile-caption">
+                <strong>Asharib Kamal</strong>
+                <span>Senior .NET / Backend Engineer</span>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="section section-tint">
+<section class="portfolio-section" id="projects">
     <div class="page-shell">
-        <SectionHeading Eyebrow="Selected work" Title="Systems with real business weight." Description="A selection of enterprise and government-platform work from my engineering journey." />
-        <div class="project-grid">
+        <div class="section-top-row">
+            <div>
+                <span class="section-kicker">MY WORK</span>
+                <h2>Featured Projects</h2>
+            </div>
+            <a class="text-link" href="/projects">View all projects →</a>
+        </div>
+
+        <div class="project-filter-row" aria-label="Project categories">
+            <span class="filter-chip active">All</span>
+            <span class="filter-chip">Web Applications</span>
+            <span class="filter-chip">APIs & Services</span>
+            <span class="filter-chip">Enterprise Systems</span>
+            <span class="filter-chip">Desktop Apps</span>
+        </div>
+
+        <div class="portfolio-project-grid">
             @foreach (var project in Portfolio.GetFeaturedProjects().Take(4))
             {
-                <a class="project-card reveal" href="/projects/@project.Slug">
-                    <div class="project-topline"><span>Case study</span><span class="project-arrow">↗</span></div>
-                    <div>
+                <article class="portfolio-project-card reveal">
+                    <div class="project-preview">
+                        <div class="project-preview-top"><span></span><span></span><span></span></div>
+                        <div class="project-preview-body">
+                            <div class="preview-sidebar"></div>
+                            <div class="preview-main">
+                                <div class="preview-line wide"></div>
+                                <div class="preview-stats"><i></i><i></i><i></i></div>
+                                <div class="preview-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card-body">
+                        <span class="project-type">Enterprise Application</span>
                         <h3>@project.Title</h3>
                         <p>@project.Summary</p>
+                        <div class="tag-row">
+                            @foreach (var tech in project.Technologies.Take(4))
+                            {
+                                <span>@tech</span>
+                            }
+                        </div>
+                        <a class="project-link" href="/projects/@project.Slug">View case study <span>→</span></a>
                     </div>
-                    <div class="tag-row">
-                        @foreach (var tech in project.Technologies.Take(4))
-                        {
-                            <span>@tech</span>
-                        }
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="portfolio-section experience-section" id="experience">
+    <div class="page-shell">
+        <div class="section-top-row">
+            <div>
+                <span class="section-kicker">EXPERIENCE</span>
+                <h2>My engineering journey</h2>
+            </div>
+            <p class="section-summary">From industrial ERP systems to enterprise platforms and national-scale tax systems.</p>
+        </div>
+
+        <div class="experience-timeline">
+            @foreach (var item in Portfolio.GetExperience())
+            {
+                <article class="experience-row reveal">
+                    <div class="experience-period">@item.Period</div>
+                    <div class="experience-marker"><span></span></div>
+                    <div class="experience-card">
+                        <span>@item.Organization</span>
+                        <h3>@item.Role</h3>
+                        <p>@item.Summary</p>
+                        <div class="tag-row">
+                            @foreach (var highlight in item.Highlights.Take(4))
+                            {
+                                <span>@highlight</span>
+                            }
+                        </div>
                     </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="portfolio-section skills-section">
+    <div class="page-shell">
+        <div class="section-top-row">
+            <div>
+                <span class="section-kicker">TECH STACK</span>
+                <h2>Tools I use to build production software</h2>
+            </div>
+        </div>
+        <div class="skill-cluster-grid">
+            <article class="skill-cluster"><span>Backend</span><h3>C# · ASP.NET Core · Web APIs · Worker Services</h3></article>
+            <article class="skill-cluster"><span>Database</span><h3>SQL Server · Oracle · EF Core · Stored Procedures</h3></article>
+            <article class="skill-cluster"><span>Architecture</span><h3>Clean Architecture · CQRS · REST · Security</h3></article>
+            <article class="skill-cluster"><span>Delivery</span><h3>Azure DevOps · Git · IIS · CI/CD · Logging</h3></article>
+        </div>
+    </div>
+</section>
+
+<section class="portfolio-section writing-section">
+    <div class="page-shell">
+        <div class="section-top-row">
+            <div>
+                <span class="section-kicker">WRITING</span>
+                <h2>Latest .NET insights</h2>
+            </div>
+            <a class="text-link" href="/blog">View all articles →</a>
+        </div>
+        <div class="portfolio-article-grid">
+            @foreach (var article in Portfolio.GetLatestArticles().Take(3))
+            {
+                <a class="portfolio-article-card reveal" href="/blog/@article.Slug">
+                    <div class="article-meta"><span>@article.Category</span><span>@article.ReadTime</span></div>
+                    <h3>@article.Title</h3>
+                    <p>@article.Summary</p>
+                    <span class="project-link">Read article →</span>
                 </a>
             }
         </div>
-        <div class="section-action reveal"><a class="text-link" href="/projects">View all projects <span>→</span></a></div>
     </div>
 </section>
 
-<section class="section page-shell">
-    <SectionHeading Eyebrow="Journey" Title="From industrial ERP to national platforms." Description="A career built through hands-on delivery, technical ownership, mentoring and increasingly complex systems." />
-    <div class="timeline">
-        @foreach (var item in Portfolio.GetExperience())
-        {
-            <article class="timeline-item reveal">
-                <div class="timeline-dot"></div>
-                <div class="timeline-period">@item.Period</div>
-                <div class="timeline-content">
-                    <p class="timeline-org">@item.Organization</p>
-                    <h3>@item.Role</h3>
-                    <p>@item.Summary</p>
-                    <div class="tag-row">@foreach (var highlight in item.Highlights) { <span>@highlight</span> }</div>
-                </div>
-            </article>
-        }
-    </div>
-</section>
-
-<section class="section section-dark">
-    <div class="page-shell">
-        <SectionHeading Eyebrow="How I can help" Title="Engineering support where it matters." Description="For teams that need experienced .NET delivery without unnecessary complexity." />
-        <div class="services-grid">
-            <a href="/services" class="service-card reveal"><span>01</span><h3>.NET Development</h3><p>Production-ready ASP.NET Core applications and backend services.</p><b>Explore service →</b></a>
-            <a href="/services" class="service-card reveal" data-delay="80"><span>02</span><h3>API Engineering</h3><p>Secure REST APIs, integrations, authentication and backend workflows.</p><b>Explore service →</b></a>
-            <a href="/services" class="service-card reveal" data-delay="160"><span>03</span><h3>Architecture & Review</h3><p>Practical architecture, modernization, performance and code review.</p><b>Explore service →</b></a>
+<section class="portfolio-section resources-section" id="resources">
+    <div class="page-shell resource-grid">
+        <div class="resource-card featured-resource reveal">
+            <span class="section-kicker">FEATURED RESOURCE</span>
+            <h2>.NET Interview Preparation Guide</h2>
+            <p>Practical interview preparation covering C#, ASP.NET Core, APIs, architecture, SQL and senior-level concepts.</p>
+            <a class="button button-primary" href="/contact">Get early access →</a>
+        </div>
+        <div class="resource-card reveal">
+            <span class="section-kicker">NEWSLETTER</span>
+            <h2>DotNet Guru</h2>
+            <p>Practical .NET engineering notes, architecture ideas and lessons from real production systems.</p>
+            <a class="text-link" href="https://www.linkedin.com/newsletters/dotnet-guru-7189522711310721025/" target="_blank" rel="noreferrer">Read on LinkedIn ↗</a>
         </div>
     </div>
 </section>
 
-<section class="section page-shell">
-    <SectionHeading Eyebrow="Writing" Title="Notes from building with .NET." Description="Practical engineering ideas around APIs, architecture, performance, security and career growth." />
-    <div class="article-grid">
-        @foreach (var article in Portfolio.GetLatestArticles())
-        {
-            <a class="article-card reveal" href="/blog/@article.Slug">
-                <div class="article-meta"><span>@article.Category</span><span>@article.ReadTime</span></div>
-                <h3>@article.Title</h3>
-                <p>@article.Summary</p>
-                <span class="text-link">Read article →</span>
-            </a>
-        }
-    </div>
-</section>
-
-<section class="section page-shell">
-    <div class="product-banner reveal">
+<section class="portfolio-section product-section">
+    <div class="page-shell product-cta reveal">
         <div>
-            <p class="eyebrow">Building in public</p>
+            <span class="section-kicker">BUILDING PRODUCTS</span>
             <h2>AppraisalKaro</h2>
-            <p>I'm building a modern employee performance appraisal product alongside my engineering work.</p>
+            <p>A modern employee performance appraisal platform I'm building alongside my engineering work.</p>
         </div>
         <a class="button button-primary" href="https://appraisalkaro.com/" target="_blank" rel="noreferrer">Explore AppraisalKaro ↗</a>
     </div>
 </section>
 
-<section class="section page-shell">
-    <div class="newsletter-panel reveal">
+<section class="portfolio-section final-cta-section">
+    <div class="page-shell final-cta reveal">
         <div>
-            <p class="eyebrow">DotNet Guru</p>
-            <h2>Practical .NET engineering, without the noise.</h2>
-            <p>Architecture, APIs, performance and lessons from real production systems.</p>
+            <span class="section-kicker">LET'S WORK TOGETHER</span>
+            <h2>Have a software project in mind?</h2>
+            <p>Let's build something secure, maintainable and ready for production.</p>
         </div>
-        <a class="button button-primary" href="https://www.linkedin.com/newsletters/dotnet-guru-7189522711310721025/" target="_blank" rel="noreferrer">Read the newsletter ↗</a>
+        <div class="hero-actions">
+            <a class="button button-primary" href="/contact">Start a project →</a>
+            <a class="button button-ghost" href="/about">About me</a>
+        </div>
     </div>
 </section>
