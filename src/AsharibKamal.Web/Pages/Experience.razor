@@ -1,0 +1,25 @@
+@page "/experience"
+@using AsharibKamal.Application.Abstractions
+@inject IPortfolioService Portfolio
+<PageTitle>Experience — Asharib Kamal</PageTitle>
+
+<section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">EXPERIENCE</span><h1>A journey of growth and continuous learning.</h1><p>From ERP development and technical teaching to enterprise platforms and national-scale tax systems.</p></div></section>
+
+<section class="screen-body page-shell">
+    <div class="experience-timeline">
+        @foreach (var item in Portfolio.GetExperience())
+        {
+            <article class="experience-row reveal">
+                <div class="experience-period">@item.Period</div>
+                <div class="experience-marker"><span></span></div>
+                <div class="experience-card">
+                    <span>@item.Organization</span>
+                    <h3>@item.Role</h3>
+                    <p>@item.Summary</p>
+                    <div class="tag-row">@foreach (var highlight in item.Highlights){<span>@highlight</span>}</div>
+                </div>
+            </article>
+        }
+    </div>
+    <div class="product-cta" style="margin-top:55px"><div><span class="section-kicker">NEXT STEP</span><h2>Interested in working together?</h2><p>I'm open to selected .NET opportunities, consulting and project collaborations.</p></div><a class="button button-primary" href="/contact">Contact Me →</a></div>
+</section>
