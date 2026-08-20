@@ -1,19 +1,20 @@
 @page "/projects"
 @using AsharibKamal.Application.Abstractions
 @inject IPortfolioService Portfolio
-<PageTitle>Projects — Asharib Kamal</PageTitle>
-<section class="page-shell simple-page">
-    <p class="eyebrow">Portfolio</p>
-    <h1>Selected engineering work.</h1>
-    <p class="lede">Enterprise systems, backend platforms and business applications built across different stages of my career.</p>
-    <div class="project-grid page-grid">
+<PageTitle>Portfolio — Asharib Kamal</PageTitle>
+
+<section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">MY PORTFOLIO</span><h1>Things I've built.</h1><p>Enterprise systems, backend platforms, APIs and business applications built across different stages of my engineering journey.</p></div></section>
+
+<section class="screen-body page-shell">
+    <div class="project-filter-row"><span class="filter-chip active">All</span><span class="filter-chip">Web Apps</span><span class="filter-chip">APIs</span><span class="filter-chip">Enterprise</span><span class="filter-chip">Desktop</span></div>
+    <div class="portfolio-list-grid">
         @foreach (var project in Portfolio.GetFeaturedProjects())
         {
-            <a class="project-card reveal" href="/projects/@project.Slug">
-                <div class="project-topline"><span>Case study</span><span class="project-arrow">↗</span></div>
-                <div><h3>@project.Title</h3><p>@project.Summary</p></div>
-                <div class="tag-row">@foreach (var tech in project.Technologies) { <span>@tech</span> }</div>
+            <a class="portfolio-project-card reveal" href="/projects/@project.Slug">
+                <div class="project-preview"><div class="project-preview-top"><span></span><span></span><span></span></div><div class="project-preview-body"><div class="preview-sidebar"></div><div class="preview-main"><div class="preview-line wide"></div><div class="preview-stats"><i></i><i></i><i></i></div><div class="preview-chart"></div></div></div></div>
+                <div class="project-card-body"><span class="project-type">Case Study</span><h3>@project.Title</h3><p>@project.Summary</p><div class="tag-row">@foreach (var tech in project.Technologies.Take(4)){<span>@tech</span>}</div><span class="project-link">View Case Study →</span></div>
             </a>
         }
     </div>
+    <div class="final-cta" style="margin-top:50px"><div><span class="section-kicker">NEED A DEVELOPER?</span><h2>Have a project in mind?</h2><p>Let's build something reliable and production-ready.</p></div><a class="button button-primary" href="/contact">Start a Project →</a></div>
 </section>
