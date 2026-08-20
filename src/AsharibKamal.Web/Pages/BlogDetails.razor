@@ -3,24 +3,32 @@
 @using AsharibKamal.Application.DTOs
 @inject IPortfolioService Portfolio
 <PageTitle>@Title — Asharib Kamal</PageTitle>
-<section class="page-shell article-page">
-    <a class="back-link" href="/blog">← All articles</a>
+
+<section class="screen-hero"><div class="page-shell screen-hero-inner"><a class="back-link" href="/blog">← All Articles</a>@if (Article is not null){<span class="section-kicker">@Article.Category · @Article.ReadTime</span><h1>@Article.Title</h1><p>@Article.Summary</p>}</div></section>
+
+<section class="screen-body page-shell">
     @if (Article is null)
     {
-        <h1>Article not found</h1>
+        <div class="article-shell"><h2>Article not found</h2><p>The requested article is not available.</p></div>
     }
     else
     {
-        <div class="article-header">
-            <p class="eyebrow">@Article.Category · @Article.ReadTime</p>
-            <h1>@Article.Title</h1>
-            <p class="lede">@Article.Summary</p>
-        </div>
-        <article class="prose">
-            <p>This article route is wired and ready for the CMS module. The next checkpoint will replace this placeholder with database-backed Markdown or rich-text content, SEO metadata, tags, related posts and publishing controls.</p>
+        <article class="article-shell">
+            <div class="article-cover"></div>
+            <div class="article-prose">
+                <p><strong>Introduction</strong></p>
+                <p>@Article.Summary This page is already structured for the CMS phase, where article content will come from the database while keeping this reading experience and SEO-friendly route.</p>
+                <h2>Production-first thinking</h2>
+                <p>Good engineering is not only about making code compile. It is about choosing designs that remain understandable, secure and maintainable when the application reaches real users and real operational constraints.</p>
+                <h2>Practical architecture</h2>
+                <p>I prefer architecture that makes change easier. Clear boundaries, focused services, intentional data access and good observability usually provide more value than adding patterns simply because they are fashionable.</p>
+                <h2>Conclusion</h2>
+                <p>The final CMS will let this article body, headings, metadata, tags and related content be managed from the Blazor admin panel without changing the public design.</p>
+            </div>
         </article>
     }
 </section>
+
 @code {
     [Parameter] public string Slug { get; set; } = string.Empty;
     private BlogPreviewDto? Article => Portfolio.GetLatestArticles().FirstOrDefault(x => x.Slug == Slug);
