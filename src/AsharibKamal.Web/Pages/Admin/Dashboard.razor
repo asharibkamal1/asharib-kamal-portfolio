@@ -28,26 +28,26 @@
     {
         <div class="admin-alert error">@ErrorMessage</div>
     }
-    else if (Dashboard is not null)
+    else if (DashboardData is not null)
     {
         <div class="admin-stat-grid">
-            <article class="admin-stat-card"><span>Subscribers</span><strong>@Dashboard.TotalSubscribers</strong><small>@Dashboard.ActiveSubscribers active</small></article>
-            <article class="admin-stat-card"><span>New leads</span><strong>@Dashboard.NewContactMessages</strong><small>Unread contact messages</small></article>
-            <article class="admin-stat-card"><span>Total messages</span><strong>@Dashboard.TotalContactMessages</strong><small>All website enquiries</small></article>
+            <article class="admin-stat-card"><span>Subscribers</span><strong>@DashboardData.TotalSubscribers</strong><small>@DashboardData.ActiveSubscribers active</small></article>
+            <article class="admin-stat-card"><span>New leads</span><strong>@DashboardData.NewContactMessages</strong><small>Unread contact messages</small></article>
+            <article class="admin-stat-card"><span>Total messages</span><strong>@DashboardData.TotalContactMessages</strong><small>All website enquiries</small></article>
             <article class="admin-stat-card accent"><span>Conversion engine</span><strong>Live</strong><small>Homepage + newsletter capture</small></article>
         </div>
 
         <div class="admin-grid">
             <section class="admin-panel">
-                <div class="admin-panel-head"><div><span>CONTACT LEADS</span><h2>Recent messages</h2></div><span class="admin-count">@Dashboard.TotalContactMessages total</span></div>
-                @if (Dashboard.RecentMessages.Count == 0)
+                <div class="admin-panel-head"><div><span>CONTACT LEADS</span><h2>Recent messages</h2></div><span class="admin-count">@DashboardData.TotalContactMessages total</span></div>
+                @if (DashboardData.RecentMessages.Count == 0)
                 {
                     <div class="admin-empty">No contact messages yet.</div>
                 }
                 else
                 {
                     <div class="admin-list">
-                        @foreach (var message in Dashboard.RecentMessages)
+                        @foreach (var message in DashboardData.RecentMessages)
                         {
                             <article class="admin-message-row @(message.Status == "New" ? "is-new" : "")">
                                 <div class="admin-row-main">
@@ -72,15 +72,15 @@
             </section>
 
             <section class="admin-panel">
-                <div class="admin-panel-head"><div><span>AUDIENCE</span><h2>Recent subscribers</h2></div><span class="admin-count">@Dashboard.ActiveSubscribers active</span></div>
-                @if (Dashboard.RecentSubscribers.Count == 0)
+                <div class="admin-panel-head"><div><span>AUDIENCE</span><h2>Recent subscribers</h2></div><span class="admin-count">@DashboardData.ActiveSubscribers active</span></div>
+                @if (DashboardData.RecentSubscribers.Count == 0)
                 {
                     <div class="admin-empty">No subscribers yet.</div>
                 }
                 else
                 {
                     <div class="admin-list">
-                        @foreach (var subscriber in Dashboard.RecentSubscribers)
+                        @foreach (var subscriber in DashboardData.RecentSubscribers)
                         {
                             <article class="admin-subscriber-row">
                                 <div><strong>@subscriber.Email</strong><span>@subscriber.Source · @subscriber.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</span></div>
@@ -100,7 +100,7 @@
 </section>
 
 @code {
-    private AdminDashboardDto? Dashboard { get; set; }
+    private AdminDashboardDto? DashboardData { get; set; }
     private bool IsLoading { get; set; } = true;
     private string ErrorMessage { get; set; } = string.Empty;
 
@@ -111,7 +111,7 @@
         try
         {
             IsLoading = true;
-            Dashboard = await AdminDashboard.GetDashboardAsync();
+            DashboardData = await AdminDashboard.GetDashboardAsync();
             ErrorMessage = string.Empty;
         }
         catch
