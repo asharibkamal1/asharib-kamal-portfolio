@@ -10,6 +10,9 @@ public sealed record AdminBlogPostDto(
     string Content,
     string Category,
     string Tags,
+    string? CoverImageUrl,
+    string? SeoTitle,
+    string? SeoDescription,
     bool IsPublished,
     bool IsFeatured,
     DateTime? PublishedAtUtc);
@@ -32,6 +35,15 @@ public sealed class AdminBlogPostEditDto
 
     [Required, StringLength(100)]
     public string Category { get; set; } = string.Empty;
+
+    [Url, StringLength(1000)]
+    public string? CoverImageUrl { get; set; }
+
+    [StringLength(70)]
+    public string? SeoTitle { get; set; }
+
+    [StringLength(170)]
+    public string? SeoDescription { get; set; }
 
     public string Tags { get; set; } = string.Empty;
     public bool IsPublished { get; set; }
