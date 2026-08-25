@@ -1,142 +1,41 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let revealObserver;
 
-function initReveal() {
-  const items = document.querySelectorAll('.reveal');
-  if (reducedMotion) {
-    items.forEach(x => x.classList.add('visible'));
-    return;
-  }
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const delay = Number(entry.target.dataset.delay || 0);
-      window.setTimeout(() => entry.target.classList.add('visible'), delay);
-      observer.unobserve(entry.target);
-    });
-  }, { threshold: 0.12 });
-
-  items.forEach(x => observer.observe(x));
+function initReveal(){
+  if(revealObserver) revealObserver.disconnect();
+  const items=document.querySelectorAll('.reveal,.stagger');
+  if(reducedMotion){items.forEach(x=>x.classList.add('visible'));return;}
+  revealObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(!entry.isIntersecting)return;const delay=Number(entry.target.dataset.delay||0);setTimeout(()=>entry.target.classList.add('visible'),delay);revealObserver.unobserve(entry.target);});},{threshold:.08,rootMargin:'0px 0px -30px'});
+  items.forEach(x=>revealObserver.observe(x));
 }
 
-function initHeader() {
-  const header = document.querySelector('[data-header]');
-  if (!header) return;
-  const update = () => header.classList.toggle('scrolled', window.scrollY > 16);
-  update();
-  window.addEventListener('scroll', update, { passive: true });
+function initHeader(){
+  const header=document.querySelector('[data-header]'); if(!header)return;
+  const update=()=>header.classList.toggle('scrolled',window.scrollY>12); update();
+  window.onscroll=()=>{update();const b=document.querySelector('[data-back-top]');if(b)b.classList.toggle('visible',window.scrollY>500)};
 }
 
-function initHero3D() {
-  const host = document.getElementById('hero-3d');
-  if (!host || reducedMotion || host.dataset.initialized === 'true') return;
-  host.dataset.initialized = 'true';
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
-  camera.position.z = 8.2;
-
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
-  renderer.setClearColor(0x000000, 0);
-  host.appendChild(renderer.domElement);
-
-  const group = new THREE.Group();
-  scene.add(group);
-
-  const knot = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(1.7, 0.035, 220, 18),
-    new THREE.MeshBasicMaterial({ color: 0x7da7ff, transparent: true, opacity: 0.34 })
-  );
-  group.add(knot);
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(2.55, 0.012, 8, 180),
-    new THREE.MeshBasicMaterial({ color: 0x8d76ff, transparent: true, opacity: 0.26 })
-  );
-  ring.rotation.x = 1.18;
-  ring.rotation.y = 0.22;
-  group.add(ring);
-
-  const nodeGeometry = new THREE.SphereGeometry(0.055, 18, 18);
-  const points = [
-    [-2.4, 1.25, .3], [2.35, 1.4, -.2], [2.55, -1.35, .2],
-    [-2.2, -1.45, -.1], [0, 2.45, .1], [0, -2.5, .25]
-  ];
-  points.forEach((p, i) => {
-    const node = new THREE.Mesh(
-      nodeGeometry,
-      new THREE.MeshBasicMaterial({ color: i % 2 ? 0x9c82ff : 0x83b0ff })
-    );
-    node.position.set(...p);
-    group.add(node);
-  });
-
-  const starGeometry = new THREE.BufferGeometry();
-  const starCount = 180;
-  const positions = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount; i++) {
-    const r = 3.2 + Math.random() * 2.8;
-    const a = Math.random() * Math.PI * 2;
-    const b = (Math.random() - .5) * Math.PI;
-    positions[i * 3] = Math.cos(a) * Math.cos(b) * r;
-    positions[i * 3 + 1] = Math.sin(b) * r;
-    positions[i * 3 + 2] = Math.sin(a) * Math.cos(b) * r;
-  }
-  starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0x9ebdff, size: 0.025, transparent: true, opacity: 0.35 }));
-  group.add(stars);
-
-  let targetX = 0;
-  let targetY = 0;
-  const onPointer = e => {
-    const rect = host.getBoundingClientRect();
-    targetX = ((e.clientX - rect.left) / rect.width - .5) * .32;
-    targetY = ((e.clientY - rect.top) / rect.height - .5) * .26;
-  };
-  host.addEventListener('pointermove', onPointer);
-  host.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
-
-  const resize = () => {
-    const w = Math.max(host.clientWidth, 1);
-    const h = Math.max(host.clientHeight, 1);
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  };
-  resize();
-  const ro = new ResizeObserver(resize);
-  ro.observe(host);
-
-  let frame;
-  const animate = () => {
-    group.rotation.y += (targetX - group.rotation.y) * .025;
-    group.rotation.x += (-targetY - group.rotation.x) * .025;
-    knot.rotation.z += .0015;
-    ring.rotation.z -= .001;
-    stars.rotation.y += .00035;
-    renderer.render(scene, camera);
-    frame = requestAnimationFrame(animate);
-  };
-  animate();
-
-  window.addEventListener('pagehide', () => {
-    cancelAnimationFrame(frame);
-    ro.disconnect();
-    renderer.dispose();
-  }, { once: true });
+function initMobileMenu(){
+  const btn=document.querySelector('[data-menu-button]');const menu=document.querySelector('[data-mobile-menu]');if(!btn||!menu)return;
+  btn.onclick=()=>{const open=menu.classList.toggle('open');btn.setAttribute('aria-expanded',String(open));btn.textContent=open?'✕':'☰'};
+  menu.querySelectorAll('a').forEach(a=>a.onclick=()=>menu.classList.remove('open'));
 }
 
-function boot() {
-  initReveal();
-  initHeader();
-  initHero3D();
+function initBackToTop(){const b=document.querySelector('[data-back-top]');if(b)b.onclick=()=>window.scrollTo({top:0,behavior:reducedMotion?'auto':'smooth'});}
+
+function initTilt(){if(reducedMotion||window.matchMedia('(pointer: coarse)').matches)return;document.querySelectorAll('.portfolio-project-card,.screen-card,.resource-card').forEach(card=>{card.onpointermove=e=>{const r=card.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(900px) rotateX(${-y*3}deg) rotateY(${x*4}deg) translateY(-4px)`};card.onpointerleave=()=>card.style.transform='';});}
+
+function initHeroParallax(){if(reducedMotion)return;const profile=document.querySelector('.portfolio-profile');if(!profile)return;const hero=document.querySelector('.portfolio-hero');if(!hero)return;hero.onpointermove=e=>{const r=hero.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5;const y=(e.clientY-r.top)/r.height-.5;profile.style.setProperty('--hero-x',`${x*10}px`);profile.style.setProperty('--hero-y',`${y*7}px`)};hero.onpointerleave=()=>{profile.style.setProperty('--hero-x','0px');profile.style.setProperty('--hero-y','0px')};}
+
+function initHero3D(){
+  const host=document.getElementById('hero-3d');if(!host||reducedMotion||host.dataset.initialized==='true')return;host.dataset.initialized='true';
+  const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.z=8.2;const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setClearColor(0,0);host.appendChild(renderer.domElement);const group=new THREE.Group();scene.add(group);
+  const knot=new THREE.Mesh(new THREE.TorusKnotGeometry(1.7,.035,180,16),new THREE.MeshBasicMaterial({color:0x7da7ff,transparent:true,opacity:.28}));group.add(knot);const ring=new THREE.Mesh(new THREE.TorusGeometry(2.55,.012,8,150),new THREE.MeshBasicMaterial({color:0x8d76ff,transparent:true,opacity:.22}));ring.rotation.x=1.18;ring.rotation.y=.22;group.add(ring);
+  const geo=new THREE.BufferGeometry();const count=120;const pos=new Float32Array(count*3);for(let i=0;i<count;i++){const r=3.1+Math.random()*2.3,a=Math.random()*Math.PI*2,b=(Math.random()-.5)*Math.PI;pos[i*3]=Math.cos(a)*Math.cos(b)*r;pos[i*3+1]=Math.sin(b)*r;pos[i*3+2]=Math.sin(a)*Math.cos(b)*r}geo.setAttribute('position',new THREE.BufferAttribute(pos,3));const stars=new THREE.Points(geo,new THREE.PointsMaterial({color:0x9ebdff,size:.025,transparent:true,opacity:.3}));group.add(stars);
+  let tx=0,ty=0;host.onpointermove=e=>{const r=host.getBoundingClientRect();tx=((e.clientX-r.left)/r.width-.5)*.3;ty=((e.clientY-r.top)/r.height-.5)*.24};host.onpointerleave=()=>{tx=0;ty=0};const resize=()=>{const w=Math.max(host.clientWidth,1),h=Math.max(host.clientHeight,1);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};resize();const ro=new ResizeObserver(resize);ro.observe(host);let frame;const animate=()=>{group.rotation.y+=(tx-group.rotation.y)*.025;group.rotation.x+=(-ty-group.rotation.x)*.025;knot.rotation.z+=.0012;ring.rotation.z-=.0008;stars.rotation.y+=.0003;renderer.render(scene,camera);frame=requestAnimationFrame(animate)};animate();window.addEventListener('pagehide',()=>{cancelAnimationFrame(frame);ro.disconnect();renderer.dispose()},{once:true});
 }
 
-boot();
-document.addEventListener('enhancedload', () => {
-  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  boot();
-});
+function boot(){window.scrollTo(0,0);initReveal();initHeader();initMobileMenu();initBackToTop();initTilt();initHeroParallax();initHero3D();}
+boot();document.addEventListener('enhancedload',boot);
