@@ -1,10 +1,13 @@
 /* Hero profile image fit and positioning */
 .portfolio-profile{
-    min-height:450px;
-    display:grid;
-    place-items:center;
+    min-height:420px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
     position:relative;
-    transform:translateY(-58px);
+    align-self:start;
+    padding-top:8px;
+    transform:none;
 }
 .profile-photo-frame{
     width:300px;
@@ -17,6 +20,7 @@
     display:grid;
     place-items:center;
     padding:10px;
+    margin-top:0;
     background:radial-gradient(circle at 50% 35%,rgba(76,116,255,.28),rgba(15,35,82,.9) 68%,#0b1735 100%);
     border:0;
     box-shadow:0 30px 80px rgba(0,0,0,.30),0 0 0 10px rgba(49,91,255,.055);
@@ -34,17 +38,28 @@
 .profile-network{
     width:430px;
     height:430px;
-    transform:translateY(-10px);
+    top:-54px;
+    left:50%;
+    transform:translateX(-50%);
 }
-.profile-caption{bottom:28px}
+.profile-caption{
+    top:310px;
+    bottom:auto;
+}
+.badge-one{top:2%!important}
+.badge-two{top:7%!important}
+.badge-three{bottom:24%!important}
+.badge-four{bottom:18%!important}
+
 @media(max-width:900px){
-    .portfolio-profile{min-height:410px;transform:translateY(-42px)}
+    .portfolio-profile{min-height:390px;padding-top:4px}
     .profile-photo-frame{width:270px}
-    .profile-network{width:380px;height:380px;transform:translateY(-8px)}
+    .profile-network{width:380px;height:380px;top:-48px}
+    .profile-caption{top:278px}
 }
 @media(max-width:640px){
-    .portfolio-profile{min-height:330px;transform:translateY(-30px)}
+    .portfolio-profile{min-height:320px;padding-top:0}
     .profile-photo-frame{width:220px;padding:8px}
-    .profile-network{width:305px;height:305px;transform:translateY(-6px)}
-    .profile-caption{bottom:10px}
+    .profile-network{width:305px;height:305px;top:-40px}
+    .profile-caption{top:225px}
 }
