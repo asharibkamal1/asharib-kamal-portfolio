@@ -6,7 +6,8 @@ public sealed record AdminDashboardDto(
     int NewContactMessages,
     int TotalContactMessages,
     IReadOnlyList<AdminSubscriberDto> RecentSubscribers,
-    IReadOnlyList<AdminContactMessageDto> RecentMessages);
+    IReadOnlyList<AdminContactMessageDto> RecentMessages,
+    IReadOnlyList<AdminActivityDayDto> ActivityLast7Days);
 
 public sealed record AdminSubscriberDto(
     Guid Id,
@@ -24,3 +25,8 @@ public sealed record AdminContactMessageDto(
     string Message,
     string Status,
     DateTime CreatedAtUtc);
+
+public sealed record AdminActivityDayDto(
+    DateTime Date,
+    int Subscribers,
+    int Leads);
