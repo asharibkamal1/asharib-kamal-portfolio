@@ -1,25 +1,76 @@
 @page "/blog"
 @using AsharibKamal.Application.Abstractions
-@inject IPortfolioService Portfolio
+@using AsharibKamal.Application.DTOs
+@inject IPublicBlogService PublicBlog
 <PageTitle>Blog — Asharib Kamal</PageTitle>
 
-<section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">BLOG & ARTICLES</span><h1>Sharing knowledge and practical insights.</h1><p>Notes on .NET, backend development, APIs, architecture, databases, performance and career growth.</p></div></section>
+<section class="screen-hero">
+    <div class="page-shell screen-hero-inner">
+        <span class="section-kicker">BLOG & ARTICLES</span>
+        <h1>Sharing knowledge and practical insights.</h1>
+        <p>Notes on .NET, backend development, APIs, architecture, databases, performance and career growth.</p>
+    </div>
+</section>
 
 <section class="screen-body page-shell">
-    @{ var articles = Portfolio.GetLatestArticles().ToList(); }
-    @if (articles.Any())
+    @if (IsLoading)
     {
-        var featured = articles.First();
-        <div class="blog-feature reveal">
-            <div class="blog-feature-visual">.NET</div>
-            <div class="screen-card" style="display:flex;flex-direction:column;justify-content:center"><div class="article-meta"><span>@featured.Category</span><span>@featured.ReadTime</span></div><h2 style="margin:16px 0 12px">@featured.Title</h2><p>@featured.Summary</p><a class="project-link" href="/blog/@featured.Slug">Read Article →</a></div>
+        <div class="screen-card">Loading articles…</div>
+    }
+    else if (!Articles.Any())
+    {
+        <div class="screen-card">
+            <h2>No published articles yet.</h2>
+            <p>Published articles from the admin CMS will appear here automatically.</p>
         </div>
     }
-    <div class="portfolio-article-grid">
-        @foreach (var article in articles.Skip(1))
-        {
-            <a class="portfolio-article-card reveal" href="/blog/@article.Slug"><div class="article-meta"><span>@article.Category</span><span>@article.ReadTime</span></div><h3>@article.Title</h3><p>@article.Summary</p><span class="project-link">Read Article →</span></a>
-        }
+    else
+    {
+        var featured = Articles.First();
+        <div class="blog-feature reveal">
+            <div class="blog-feature-visual">.NET</div>
+            <div class="screen-card" style="display:flex;flex-direction:column;justify-content:center">
+                <div class="article-meta">
+                    <span>@featured.Category</span>
+                    <span>@featured.ReadTime</span>
+                </div>
+                <h2 style="margin:16px 0 12px">@featured.Title</h2>
+                <p>@featured.Summary</p>
+                <a class="project-link" href="/blog/@featured.Slug">Read Article →</a>
+            </div>
+        </div>
+
+        <div class="portfolio-article-grid">
+            @foreach (var article in Articles.Skip(1))
+            {
+                <a class="portfolio-article-card reveal" href="/blog/@article.Slug">
+                    <div class="article-meta">
+                        <span>@article.Category</span>
+                        <span>@article.ReadTime</span>
+                    </div>
+                    <h3>@article.Title</h3>
+                    <p>@article.Summary</p>
+                    <span class="project-link">Read Article →</span>
+                </a>
+            }
+        </div>
+    }
+
+    <div class="resource-card featured-resource" style="margin-top:50px">
+        <span class="section-kicker">DOTNET GURU</span>
+        <h2>Get practical .NET engineering insights.</h2>
+        <p>Follow my newsletter for architecture ideas, API lessons and production-focused .NET content.</p>
+        <a class="button button-primary" href="https://www.linkedin.com/newsletters/dotnet-guru-7189522711310721025/" target="_blank" rel="noreferrer">Read Newsletter ↗</a>
     </div>
-    <div class="resource-card featured-resource" style="margin-top:50px"><span class="section-kicker">DOTNET GURU</span><h2>Get practical .NET engineering insights.</h2><p>Follow my newsletter for architecture ideas, API lessons and production-focused .NET content.</p><a class="button button-primary" href="https://www.linkedin.com/newsletters/dotnet-guru-7189522711310721025/" target="_blank" rel="noreferrer">Read Newsletter ↗</a></div>
 </section>
+
+@code {
+    private List<PublicBlogPostDto> Articles { get; set; } = [];
+    private bool IsLoading { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Articles = (await PublicBlog.GetPublishedAsync()).ToList();
+        IsLoading = false;
+    }
+}
