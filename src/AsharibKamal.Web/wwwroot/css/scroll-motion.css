@@ -1,0 +1,41 @@
+/* Scroll-driven polish for the homepage. Content is always visible; motion only adds depth. */
+:root{--scroll-progress:0}
+body:has(.portfolio-hero)::before{content:"";position:fixed;top:0;left:0;z-index:1200;width:calc(var(--scroll-progress)*100%);height:2px;background:linear-gradient(90deg,#315bff,#7b3cff,#36bffa);pointer-events:none;box-shadow:0 0 12px rgba(79,112,255,.35)}
+
+.portfolio-section{position:relative;overflow:clip}
+.portfolio-section>.page-shell{position:relative;z-index:1}
+.portfolio-section[data-scroll-active="true"] .section-top-row{transform:translate3d(0,var(--section-title-y,0px),0)}
+.section-top-row{transition:transform .12s linear;will-change:transform}
+
+/* Project cards rise with a small stagger as the grid passes through the viewport. */
+.portfolio-project-card{--card-scroll-y:0px;transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease}
+.home-scroll-motion .portfolio-project-card{transform:translate3d(0,var(--card-scroll-y),0)}
+.home-scroll-motion .portfolio-project-card:hover{transform:translate3d(0,calc(var(--card-scroll-y) - 5px),0)}
+
+/* Experience timeline gets an active reading state as the user scrolls. */
+.experience-row{transition:transform .4s cubic-bezier(.2,.75,.25,1),filter .4s ease}
+.experience-row.scroll-current{transform:translateX(7px)}
+.experience-row.scroll-current .experience-card{border-color:#b8c9f5;box-shadow:0 18px 44px rgba(38,70,138,.10)}
+.experience-row.scroll-current .experience-marker span{transform:scale(1.22);box-shadow:0 0 0 7px #edf2ff,0 0 24px rgba(49,91,255,.32)}
+
+/* Skill cards have a controlled horizontal depth shift. */
+.skill-cluster{--skill-shift:0px;transition:transform .32s ease,border-color .32s ease,background .32s ease}
+.home-scroll-motion .skill-cluster{transform:translate3d(var(--skill-shift),0,0)}
+
+/* Writing cards use a very small depth scale; no content hiding. */
+.portfolio-article-card{--article-scale:1;--article-y:0px;transform:translate3d(0,var(--article-y),0) scale(var(--article-scale));transition:transform .18s linear,box-shadow .3s ease,border-color .3s ease}
+
+/* Newsletter / resources / product CTAs settle naturally as they approach the center. */
+.home-newsletter-strip,.resources-section,.product-section,.final-cta-section{--section-depth-y:0px}
+.home-scroll-motion .home-newsletter-strip>.page-shell,
+.home-scroll-motion .resources-section>.page-shell,
+.home-scroll-motion .product-section>.page-shell,
+.home-scroll-motion .final-cta-section>.page-shell{transform:translate3d(0,var(--section-depth-y),0);transition:transform .12s linear;will-change:transform}
+
+/* Decorative background motion, intentionally subtle. */
+.portfolio-section:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-150px;top:18%;background:radial-gradient(circle,rgba(49,91,255,.055),transparent 68%);transform:translate3d(0,var(--ambient-y,0px),0);pointer-events:none;will-change:transform}
+.skills-section:after{background:radial-gradient(circle,rgba(100,130,255,.10),transparent 68%)}
+
+@media(max-width:900px){body:has(.portfolio-hero)::before{height:2px}.experience-row.scroll-current{transform:translateX(3px)}.portfolio-section:after{display:none}}
+@media(max-width:640px){.home-scroll-motion .portfolio-project-card,.home-scroll-motion .skill-cluster,.portfolio-article-card,.home-scroll-motion .home-newsletter-strip>.page-shell,.home-scroll-motion .resources-section>.page-shell,.home-scroll-motion .product-section>.page-shell,.home-scroll-motion .final-cta-section>.page-shell{transform:none!important}.section-top-row{transform:none!important}}
+@media(prefers-reduced-motion:reduce){body:has(.portfolio-hero)::before{display:none}.home-scroll-motion .portfolio-project-card,.home-scroll-motion .skill-cluster,.portfolio-article-card,.experience-row,.section-top-row,.home-scroll-motion .home-newsletter-strip>.page-shell,.home-scroll-motion .resources-section>.page-shell,.home-scroll-motion .product-section>.page-shell,.home-scroll-motion .final-cta-section>.page-shell{transform:none!important;transition:none!important}}
