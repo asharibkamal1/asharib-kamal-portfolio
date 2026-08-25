@@ -3,9 +3,11 @@
 @layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
 @using Markdig
 @attribute [Authorize]
 @inject IAdminBlogService BlogAdmin
+@inject IWebHostEnvironment Environment
 
 <PageTitle>Blog CMS — Asharib Kamal Admin</PageTitle>
 <HeadContent><meta name="robots" content="noindex,nofollow" /></HeadContent>
@@ -90,21 +92,59 @@
                             <div class="admin-field full"><label>Article title</label><InputText @bind-Value="Editor.Title" placeholder="e.g. Building Reliable APIs in ASP.NET Core" /><ValidationMessage For="() => Editor.Title" /></div>
                             <div class="admin-field"><label>URL slug</label><InputText @bind-Value="Editor.Slug" placeholder="reliable-apis-aspnet-core" /><small>Public URL: /blog/@(string.IsNullOrWhiteSpace(Editor.Slug) ? "your-article" : Editor.Slug)</small></div>
                             <div class="admin-field"><label>Category</label><InputText @bind-Value="Editor.Category" placeholder="ASP.NET Core" /></div>
-                            <div class="admin-field full"><label>Cover image URL</label><InputText @bind-Value="Editor.CoverImageUrl" placeholder="https://.../cover-image.jpg" /><ValidationMessage For="() => Editor.CoverImageUrl" /><small>Use a wide image (recommended 1600×900). It appears on the article page and social previews.</small></div>
+
+                            <div class="admin-field full">
+                                <label>Cover image</label>
+                                <div class="admin-upload-card">
+                                    <div class="admin-upload-copy">
+                                        <strong>Upload article cover</strong>
+                                        <span>JPG, PNG or WebP · maximum 5 MB · recommended 1600×900</span>
+                                    </div>
+                                    <label class="admin-upload-button">
+                                        <InputFile OnChange="UploadCoverAsync" accept="image/jpeg,image/png,image/webp" />
+                                        <span>@(IsUploadingCover ? "Uploading…" : "Choose image")</span>
+                                    </label>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(Editor.CoverImageUrl))
+                                {
+                                    <div class="admin-upload-preview">
+                                        <img src="@Editor.CoverImageUrl" alt="Current article cover" />
+                                        <div><strong>Cover ready</strong><span>@Editor.CoverImageUrl</span><button type="button" class="admin-text-button danger" @onclick="RemoveCover">Remove cover</button></div>
+                                    </div>
+                                }
+                                <InputText @bind-Value="Editor.CoverImageUrl" placeholder="Or paste an external image URL" />
+                                <ValidationMessage For="() => Editor.CoverImageUrl" />
+                            </div>
                         </div>
                     </div>
 
                     <div class="admin-form-section">
-                        <div class="admin-form-section-title"><span>02</span><div><strong>Content</strong><small>Summary, Markdown editor and tags</small></div></div>
+                        <div class="admin-form-section-title"><span>02</span><div><strong>Content</strong><small>Summary, Markdown editor and article images</small></div></div>
                         <div class="admin-editor-grid">
                             <div class="admin-field full"><label>Short summary</label><InputTextArea @bind-Value="Editor.Summary" placeholder="A concise summary shown on blog cards and search previews." class="admin-summary-input" /><ValidationMessage For="() => Editor.Summary" /></div>
+
+                            <div class="admin-field full">
+                                <label>Insert image inside article</label>
+                                <div class="admin-upload-card inline-media-upload">
+                                    <div class="admin-upload-copy"><strong>Upload article image</strong><span>Upload a screenshot, diagram or illustration. The Markdown image will be inserted automatically.</span></div>
+                                    <label class="admin-upload-button">
+                                        <InputFile OnChange="UploadInlineImageAsync" accept="image/jpeg,image/png,image/webp,image/gif" />
+                                        <span>@(IsUploadingInline ? "Uploading…" : "Upload & insert")</span>
+                                    </label>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(LastInlineImageUrl))
+                                {
+                                    <div class="admin-inline-upload-result"><span>Inserted:</span><code>@LastInlineImageUrl</code></div>
+                                }
+                            </div>
+
                             <div class="admin-field full">
                                 <div class="admin-markdown-label"><label>Article content</label><span>Markdown supported</span></div>
                                 <div class="admin-markdown-toolbar">
                                     <button type="button" @onclick='() => InsertMarkdown("\n## Heading\n")'>H2</button>
                                     <button type="button" @onclick='() => InsertMarkdown("**bold text**")'><strong>B</strong></button>
                                     <button type="button" @onclick='() => InsertMarkdown("[link text](https://example.com)")'>Link</button>
-                                    <button type="button" @onclick='() => InsertMarkdown("\n![image description](https://example.com/image.jpg)\n")'>Image</button>
+                                    <button type="button" @onclick='() => InsertMarkdown("\n![image description](https://example.com/image.jpg)\n")'>Image URL</button>
                                     <button type="button" @onclick='() => InsertMarkdown("\n- List item\n- List item\n")'>List</button>
                                     <button type="button" @onclick='() => InsertMarkdown("\n> Important quote\n")'>Quote</button>
                                     <button type="button" @onclick='() => InsertMarkdown("\n```csharp\n// your code here\n```\n")'>Code</button>
@@ -137,14 +177,20 @@
 </section>
 
 @code {
+    private const long CoverMaxBytes = 5 * 1024 * 1024;
+    private const long InlineMaxBytes = 8 * 1024 * 1024;
+    private static readonly HashSet<string> AllowedExtensions = new(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
     private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     private List<AdminBlogPostDto> Posts { get; set; } = [];
     private AdminBlogPostEditDto Editor { get; set; } = new();
     private bool IsLoading = true;
     private bool IsSaving;
+    private bool IsUploadingCover;
+    private bool IsUploadingInline;
     private bool IsError;
     private bool ShowPreview;
     private string StatusMessage = string.Empty;
+    private string LastInlineImageUrl = string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -155,13 +201,13 @@
         finally { IsLoading = false; }
     }
 
-    private void NewPost() { Editor = new AdminBlogPostEditDto(); StatusMessage = string.Empty; IsError = false; ShowPreview = false; }
+    private void NewPost() { Editor = new AdminBlogPostEditDto(); StatusMessage = string.Empty; LastInlineImageUrl = string.Empty; IsError = false; ShowPreview = false; }
 
     private async Task EditAsync(Guid id)
     {
         var post = await BlogAdmin.GetByIdAsync(id); if (post is null) return;
         Editor = new AdminBlogPostEditDto { Id = post.Id, Title = post.Title, Slug = post.Slug, Summary = post.Summary, Content = post.Content, Category = post.Category, Tags = post.Tags, CoverImageUrl = post.CoverImageUrl, SeoTitle = post.SeoTitle, SeoDescription = post.SeoDescription, IsPublished = post.IsPublished, IsFeatured = post.IsFeatured };
-        StatusMessage = string.Empty; IsError = false; ShowPreview = false;
+        StatusMessage = string.Empty; LastInlineImageUrl = string.Empty; IsError = false; ShowPreview = false;
     }
 
     private void InsertMarkdown(string value)
@@ -169,6 +215,82 @@
         Editor.Content ??= string.Empty;
         if (!string.IsNullOrWhiteSpace(Editor.Content) && !Editor.Content.EndsWith('\n')) Editor.Content += "\n";
         Editor.Content += value;
+    }
+
+    private async Task UploadCoverAsync(InputFileChangeEventArgs args)
+    {
+        try
+        {
+            IsUploadingCover = true;
+            IsError = false;
+            var url = await SaveImageAsync(args.File, CoverMaxBytes);
+            Editor.CoverImageUrl = url;
+            StatusMessage = "Cover image uploaded successfully.";
+        }
+        catch (Exception ex)
+        {
+            IsError = true;
+            StatusMessage = ex.Message;
+        }
+        finally { IsUploadingCover = false; }
+    }
+
+    private async Task UploadInlineImageAsync(InputFileChangeEventArgs args)
+    {
+        try
+        {
+            IsUploadingInline = true;
+            IsError = false;
+            var url = await SaveImageAsync(args.File, InlineMaxBytes);
+            LastInlineImageUrl = url;
+            var alt = Path.GetFileNameWithoutExtension(args.File.Name).Replace('-', ' ').Replace('_', ' ');
+            InsertMarkdown($"\n![{alt}]({url})\n");
+            StatusMessage = "Article image uploaded and inserted into the Markdown content.";
+        }
+        catch (Exception ex)
+        {
+            IsError = true;
+            StatusMessage = ex.Message;
+        }
+        finally { IsUploadingInline = false; }
+    }
+
+    private async Task<string> SaveImageAsync(IBrowserFile file, long maxBytes)
+    {
+        if (file.Size <= 0) throw new InvalidOperationException("The selected image is empty.");
+        if (file.Size > maxBytes) throw new InvalidOperationException($"Image is too large. Maximum allowed size is {maxBytes / 1024 / 1024} MB.");
+
+        var extension = Path.GetExtension(file.Name);
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedExtensions.Contains(extension))
+            throw new InvalidOperationException("Unsupported image type. Please upload JPG, PNG, WebP or GIF.");
+
+        var folderName = SanitizeFolderName(Editor.Slug);
+        var relativeFolder = Path.Combine("uploads", "blog", folderName);
+        var physicalFolder = Path.Combine(Environment.WebRootPath, relativeFolder);
+        Directory.CreateDirectory(physicalFolder);
+
+        var fileName = $"{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+        var physicalPath = Path.Combine(physicalFolder, fileName);
+
+        await using var input = file.OpenReadStream(maxBytes);
+        await using var output = File.Create(physicalPath);
+        await input.CopyToAsync(output);
+
+        return "/" + Path.Combine(relativeFolder, fileName).Replace('\\', '/');
+    }
+
+    private static string SanitizeFolderName(string? slug)
+    {
+        var source = string.IsNullOrWhiteSpace(slug) ? "draft" : slug.Trim().ToLowerInvariant();
+        var safe = new string(source.Select(c => char.IsLetterOrDigit(c) || c is '-' or '_' ? c : '-').ToArray()).Trim('-');
+        return string.IsNullOrWhiteSpace(safe) ? "draft" : safe;
+    }
+
+    private void RemoveCover()
+    {
+        Editor.CoverImageUrl = string.Empty;
+        StatusMessage = "Cover removed from this article. The uploaded file is kept in the media folder.";
+        IsError = false;
     }
 
     private async Task SaveAsync()
