@@ -46,6 +46,19 @@ using (var scope = app.Services.CreateScope())
     var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<PortfolioDbContext>>();
     await using var db = await dbFactory.CreateDbContextAsync();
     await db.Database.EnsureCreatedAsync();
+
+    // Temporary idempotent schema upgrade until formal EF Core migrations are introduced.
+    await db.Database.ExecuteSqlRawAsync("""
+        IF OBJECT_ID('BlogPosts', 'U') IS NOT NULL
+        BEGIN
+            IF COL_LENGTH('BlogPosts', 'CoverImageUrl') IS NULL
+                ALTER TABLE BlogPosts ADD CoverImageUrl nvarchar(1000) NULL;
+            IF COL_LENGTH('BlogPosts', 'SeoTitle') IS NULL
+                ALTER TABLE BlogPosts ADD SeoTitle nvarchar(70) NULL;
+            IF COL_LENGTH('BlogPosts', 'SeoDescription') IS NULL
+                ALTER TABLE BlogPosts ADD SeoDescription nvarchar(170) NULL;
+        END
+        """);
 }
 
 app.UseHttpsRedirection();
