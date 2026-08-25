@@ -1,20 +1,44 @@
 @page "/projects"
 @using AsharibKamal.Application.Abstractions
-@inject IPortfolioService Portfolio
+@using AsharibKamal.Application.DTOs
+@inject IPublicProjectService PublicProjects
 <PageTitle>Portfolio — Asharib Kamal</PageTitle>
 
 <section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">MY PORTFOLIO</span><h1>Things I've built.</h1><p>Enterprise systems, backend platforms, APIs and business applications built across different stages of my engineering journey.</p></div></section>
 
 <section class="screen-body page-shell">
-    <div class="project-filter-row"><span class="filter-chip active">All</span><span class="filter-chip">Web Apps</span><span class="filter-chip">APIs</span><span class="filter-chip">Enterprise</span><span class="filter-chip">Desktop</span></div>
-    <div class="portfolio-list-grid">
-        @foreach (var project in Portfolio.GetFeaturedProjects())
-        {
-            <a class="portfolio-project-card reveal" href="/projects/@project.Slug">
-                <div class="project-preview"><div class="project-preview-top"><span></span><span></span><span></span></div><div class="project-preview-body"><div class="preview-sidebar"></div><div class="preview-main"><div class="preview-line wide"></div><div class="preview-stats"><i></i><i></i><i></i></div><div class="preview-chart"></div></div></div></div>
-                <div class="project-card-body"><span class="project-type">Case Study</span><h3>@project.Title</h3><p>@project.Summary</p><div class="tag-row">@foreach (var tech in project.Technologies.Take(4)){<span>@tech</span>}</div><span class="project-link">View Case Study →</span></div>
-            </a>
-        }
-    </div>
+    @if (IsLoading)
+    {
+        <div class="screen-card">Loading projects…</div>
+    }
+    else if (Projects.Count == 0)
+    {
+        <div class="screen-card"><h2>Portfolio projects are being prepared.</h2><p>Published case studies from the admin CMS will appear here automatically.</p></div>
+    }
+    else
+    {
+        <div class="portfolio-list-grid">
+            @foreach (var project in Projects)
+            {
+                <a class="portfolio-project-card reveal public-project-card" href="/projects/@project.Slug">
+                    @if (!string.IsNullOrWhiteSpace(project.CoverImageUrl))
+                    {
+                        <img class="public-project-cover" src="@project.CoverImageUrl" alt="@project.Title project cover" />
+                    }
+                    else
+                    {
+                        <div class="project-preview"><div class="project-preview-top"><span></span><span></span><span></span></div><div class="project-preview-body"><div class="preview-sidebar"></div><div class="preview-main"><div class="preview-line wide"></div><div class="preview-stats"><i></i><i></i><i></i></div><div class="preview-chart"></div></div></div></div>
+                    }
+                    <div class="project-card-body"><span class="project-type">@(project.IsFeatured ? "Featured Case Study" : "Case Study")</span><h3>@project.Title</h3><p>@project.Summary</p><div class="tag-row">@foreach (var tech in project.Technologies.Take(4)){<span>@tech</span>}</div><span class="project-link">View Case Study →</span></div>
+                </a>
+            }
+        </div>
+    }
     <div class="final-cta" style="margin-top:50px"><div><span class="section-kicker">NEED A DEVELOPER?</span><h2>Have a project in mind?</h2><p>Let's build something reliable and production-ready.</p></div><a class="button button-primary" href="/contact">Start a Project →</a></div>
 </section>
+
+@code {
+    private List<PublicProjectDto> Projects { get; set; } = [];
+    private bool IsLoading = true;
+    protected override async Task OnInitializedAsync(){ Projects=(await PublicProjects.GetPublishedAsync()).ToList(); IsLoading=false; }
+}
