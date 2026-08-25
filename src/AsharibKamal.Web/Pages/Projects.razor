@@ -11,14 +11,14 @@
     {
         <div class="screen-card">Loading projects…</div>
     }
-    else if (Projects.Count == 0)
+    else if (ProjectItems.Count == 0)
     {
         <div class="screen-card"><h2>Portfolio projects are being prepared.</h2><p>Published case studies from the admin CMS will appear here automatically.</p></div>
     }
     else
     {
         <div class="portfolio-list-grid">
-            @foreach (var project in Projects)
+            @foreach (var project in ProjectItems)
             {
                 <a class="portfolio-project-card reveal public-project-card" href="/projects/@project.Slug">
                     @if (!string.IsNullOrWhiteSpace(project.CoverImageUrl))
@@ -38,7 +38,12 @@
 </section>
 
 @code {
-    private List<PublicProjectDto> Projects { get; set; } = [];
+    private List<PublicProjectDto> ProjectItems { get; set; } = [];
     private bool IsLoading = true;
-    protected override async Task OnInitializedAsync(){ Projects=(await PublicProjects.GetPublishedAsync()).ToList(); IsLoading=false; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ProjectItems = (await PublicProjects.GetPublishedAsync()).ToList();
+        IsLoading = false;
+    }
 }
