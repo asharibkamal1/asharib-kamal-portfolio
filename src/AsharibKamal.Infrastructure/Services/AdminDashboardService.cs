@@ -30,13 +30,35 @@ public sealed class AdminDashboardService(IDbContextFactory<PortfolioDbContext> 
             .Select(x => new AdminContactMessageDto(x.Id, x.Name, x.Email, x.Company, x.Subject, x.Message, x.Status, x.CreatedAtUtc))
             .ToListAsync(cancellationToken);
 
+        var today = DateTime.UtcNow.Date;
+        var start = today.AddDays(-6);
+
+        var subscriberDates = await db.Subscribers.AsNoTracking()
+            .Where(x => x.CreatedAtUtc >= start)
+            .Select(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        var leadDates = await db.ContactMessages.AsNoTracking()
+            .Where(x => x.CreatedAtUtc >= start)
+            .Select(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
+        var activity = Enumerable.Range(0, 7)
+            .Select(offset => start.AddDays(offset))
+            .Select(day => new AdminActivityDayDto(
+                day,
+                subscriberDates.Count(x => x.Date == day),
+                leadDates.Count(x => x.Date == day)))
+            .ToList();
+
         return new AdminDashboardDto(
             totalSubscribers,
             activeSubscribers,
             newContactMessages,
             totalContactMessages,
             recentSubscribers,
-            recentMessages);
+            recentMessages,
+            activity);
     }
 
     public async Task MarkMessageReadAsync(Guid id, CancellationToken cancellationToken = default)
