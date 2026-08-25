@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddDbContextFactory<PortfolioDbContext>(options => options.UseSqlServer(connectionString));
         services.AddScoped<ILeadCaptureService, LeadCaptureService>();
         services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        services.AddScoped<IAdminBlogService, AdminBlogService>();
 
         return services;
     }
