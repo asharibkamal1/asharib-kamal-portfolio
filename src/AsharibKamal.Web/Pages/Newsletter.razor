@@ -1,4 +1,68 @@
 @page "/newsletter"
+@rendermode InteractiveServer
+@inject ILeadCaptureService LeadCapture
+
 <PageTitle>DotNet Guru Newsletter — Asharib Kamal</PageTitle>
+<HeadContent>
+    <meta name="description" content="Subscribe for practical .NET engineering insights from Asharib Kamal covering APIs, architecture, SQL, performance and production systems." />
+</HeadContent>
+
 <section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">NEWSLETTER</span><h1>Practical .NET engineering notes for developers who ship.</h1><p>Architecture, APIs, performance, databases, security and lessons from real production systems.</p></div></section>
-<section class="screen-body page-shell"><div class="newsletter-box reveal"><span class="section-kicker">DOTNET GURU</span><h2>Learn what matters in production.</h2><p>No generic tutorials. I write about trade-offs, mistakes, patterns and engineering decisions that show up in real .NET applications.</p><div class="trust-strip"><span>ASP.NET Core</span><span>C#</span><span>APIs</span><span>Architecture</span><span>SQL</span><span>Performance</span></div><div class="newsletter-form"><input type="email" placeholder="you@example.com" aria-label="Email address"/><a class="button button-primary" href="https://www.linkedin.com/newsletters/dotnet-guru-7189522711310721025/" target="_blank">Subscribe on LinkedIn ↗</a></div></div></section>
+<section class="screen-body page-shell">
+    <div class="newsletter-box reveal">
+        <span class="section-kicker">DOTNET GURU</span>
+        <h2>Learn what matters in production.</h2>
+        <p>No generic tutorials. I write about trade-offs, mistakes, patterns and engineering decisions that show up in real .NET applications.</p>
+        <div class="trust-strip"><span>ASP.NET Core</span><span>C#</span><span>APIs</span><span>Architecture</span><span>SQL</span><span>Performance</span></div>
+        <form class="newsletter-form" @onsubmit="SubscribeAsync" @onsubmit:preventDefault>
+            <input type="email" @bind="Email" maxlength="320" placeholder="you@example.com" aria-label="Email address" />
+            <button class="button button-primary" type="submit" disabled="@IsSubmitting">@(IsSubmitting ? "Subscribing..." : "Join the newsletter")</button>
+        </form>
+        @if (!string.IsNullOrWhiteSpace(StatusMessage))
+        {
+            <div class="newsletter-status @(IsSuccess ? "success" : "error")">@StatusMessage</div>
+        }
+        <p class="newsletter-link-note">Prefer LinkedIn? <a href="https://www.linkedin.com/newsletters/dotnet-guru-7189522711310721025/" target="_blank" rel="noreferrer">Read DotNet Guru on LinkedIn ↗</a></p>
+    </div>
+</section>
+
+@code {
+    private string Email { get; set; } = string.Empty;
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool IsSuccess { get; set; }
+    private bool IsSubmitting { get; set; }
+
+    private async Task SubscribeAsync()
+    {
+        StatusMessage = string.Empty;
+        IsSuccess = false;
+
+        if (string.IsNullOrWhiteSpace(Email) || !Email.Contains('@'))
+        {
+            StatusMessage = "Please enter a valid email address.";
+            return;
+        }
+
+        try
+        {
+            IsSubmitting = true;
+            var result = await LeadCapture.SubscribeAsync(Email, "Website Newsletter");
+            IsSuccess = true;
+            StatusMessage = result switch
+            {
+                NewsletterSignupResult.AlreadySubscribed => "You're already subscribed. Thanks for being part of DotNet Guru.",
+                NewsletterSignupResult.Reactivated => "Welcome back. Your subscription is active again.",
+                _ => "You're subscribed. Thanks for joining DotNet Guru."
+            };
+            Email = string.Empty;
+        }
+        catch
+        {
+            StatusMessage = "Subscription couldn't be saved right now. You can still follow DotNet Guru on LinkedIn.";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}
