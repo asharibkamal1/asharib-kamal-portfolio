@@ -46,6 +46,9 @@ public sealed class PublicBlogService(IDbContextFactory<PortfolioDbContext> dbFa
             post.Content,
             post.Category,
             post.Tags,
+            post.CoverImageUrl,
+            post.SeoTitle,
+            post.SeoDescription,
             post.IsFeatured,
             post.PublishedAtUtc,
             $"{minutes} min read");
