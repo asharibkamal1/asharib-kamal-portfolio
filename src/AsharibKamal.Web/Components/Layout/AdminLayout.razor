@@ -1,53 +1,68 @@
 @inherits LayoutComponentBase
 
-<div class="admin-app-shell">
-    <aside class="admin-sidebar">
-        <div class="admin-sidebar-brand">
+<div class="admin-app-shell admin-v2-shell">
+    <aside class="admin-sidebar admin-v2-sidebar">
+        <div class="admin-sidebar-brand admin-v2-brand">
             <a href="/admin" class="admin-brand-link">
                 <span class="admin-brand-mark">AK</span>
-                <span class="admin-brand-copy"><strong>Portfolio Admin</strong><small>Content & Growth</small></span>
+                <span class="admin-brand-copy"><strong>Portfolio OS</strong><small>Admin workspace</small></span>
             </a>
+            <span class="admin-version-badge">v1.0</span>
         </div>
 
-        <nav class="admin-nav" aria-label="Admin navigation">
-            <span class="admin-nav-label">OVERVIEW</span>
-            <NavLink href="/admin" Match="NavLinkMatch.All"><span class="admin-nav-icon">⌂</span><span>Dashboard</span></NavLink>
+        <div class="admin-sidebar-scroll">
+            <div class="admin-sidebar-intro">
+                <span class="admin-sidebar-intro-dot"></span>
+                <div><strong>System online</strong><small>Content & growth control</small></div>
+            </div>
 
-            <span class="admin-nav-label">CONTENT</span>
-            <NavLink href="/admin/blog"><span class="admin-nav-icon">✎</span><span>Blog</span></NavLink>
-            <NavLink href="/admin/projects"><span class="admin-nav-icon">◇</span><span>Projects</span></NavLink>
+            <nav class="admin-nav admin-v2-nav" aria-label="Admin navigation">
+                <span class="admin-nav-label">WORKSPACE</span>
+                <NavLink href="/admin" Match="NavLinkMatch.All"><span class="admin-nav-icon">⌂</span><span class="admin-nav-copy"><strong>Dashboard</strong><small>Overview & activity</small></span></NavLink>
 
-            <span class="admin-nav-label">AUDIENCE</span>
-            <NavLink href="/admin/subscribers"><span class="admin-nav-icon">◎</span><span>Subscribers</span></NavLink>
-            <NavLink href="/admin/leads"><span class="admin-nav-icon">✉</span><span>Contact Leads</span></NavLink>
+                <span class="admin-nav-label">CONTENT</span>
+                <NavLink href="/admin/blog"><span class="admin-nav-icon">✎</span><span class="admin-nav-copy"><strong>Blog</strong><small>Articles & publishing</small></span></NavLink>
+                <NavLink href="/admin/projects"><span class="admin-nav-icon">◇</span><span class="admin-nav-copy"><strong>Projects</strong><small>Portfolio case studies</small></span></NavLink>
 
-            <span class="admin-nav-label">INSIGHTS</span>
-            <NavLink href="/admin/analytics"><span class="admin-nav-icon">↗</span><span>Analytics</span></NavLink>
-            <NavLink href="/admin/settings"><span class="admin-nav-icon">⚙</span><span>Settings</span></NavLink>
-        </nav>
+                <span class="admin-nav-label">AUDIENCE</span>
+                <NavLink href="/admin/subscribers"><span class="admin-nav-icon">◎</span><span class="admin-nav-copy"><strong>Subscribers</strong><small>Newsletter audience</small></span></NavLink>
+                <NavLink href="/admin/leads"><span class="admin-nav-icon">✉</span><span class="admin-nav-copy"><strong>Contact leads</strong><small>Website enquiries</small></span></NavLink>
 
-        <div class="admin-sidebar-footer">
-            <a class="admin-view-site" href="/" target="_blank" rel="noreferrer"><span>↗</span><span>View public website</span></a>
-            <form method="post" action="/admin/logout">
-                <button type="submit" class="admin-signout-button"><span>⇥</span><span>Sign out</span></button>
-            </form>
+                <span class="admin-nav-label">INTELLIGENCE</span>
+                <NavLink href="/admin/analytics"><span class="admin-nav-icon">↗</span><span class="admin-nav-copy"><strong>Analytics</strong><small>Performance insights</small></span></NavLink>
+                <NavLink href="/admin/settings"><span class="admin-nav-icon">⚙</span><span class="admin-nav-copy"><strong>Settings</strong><small>Workspace preferences</small></span></NavLink>
+            </nav>
+        </div>
+
+        <div class="admin-sidebar-footer admin-v2-footer">
+            <a class="admin-view-site" href="/" target="_blank" rel="noreferrer"><span>↗</span><span><strong>View portfolio</strong><small>Open public website</small></span></a>
+            <div class="admin-sidebar-user">
+                <span class="admin-user-avatar">AK</span>
+                <span><strong>Administrator</strong><small>Portfolio owner</small></span>
+                <form method="post" action="/admin/logout"><button type="submit" class="admin-signout-icon" title="Sign out" aria-label="Sign out">⇥</button></form>
+            </div>
         </div>
     </aside>
 
-    <div class="admin-workspace">
-        <header class="admin-workspace-header">
-            <div class="admin-mobile-brand"><span class="admin-brand-mark">AK</span><strong>Admin</strong></div>
+    <div class="admin-workspace admin-v2-workspace">
+        <header class="admin-workspace-header admin-v2-header">
+            <div class="admin-mobile-brand"><span class="admin-brand-mark">AK</span><strong>Portfolio OS</strong></div>
             <div class="admin-workspace-meta">
                 <span class="admin-live-dot"></span>
-                <span>Portfolio CMS</span>
+                <span>Live workspace</span>
+                <span class="admin-header-separator"></span>
+                <span>@DateTime.Now.ToString("ddd, dd MMM")</span>
             </div>
-            <div class="admin-user-chip">
-                <span class="admin-user-avatar">AK</span>
-                <span><strong>Administrator</strong><small>Portfolio owner</small></span>
+            <div class="admin-header-actions">
+                <a href="/" target="_blank" class="admin-header-public-link">Public site ↗</a>
+                <div class="admin-user-chip">
+                    <span class="admin-user-avatar">AK</span>
+                    <span><strong>Administrator</strong><small>Portfolio owner</small></span>
+                </div>
             </div>
         </header>
 
-        <main class="admin-workspace-content">
+        <main class="admin-workspace-content admin-v2-content">
             @Body
         </main>
     </div>
