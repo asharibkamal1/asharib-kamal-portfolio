@@ -1,17 +1,27 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
-            <NotAuthorized>
-                <LayoutView Layout="typeof(MainLayout)">
-                    <section class="page-shell simple-page">
-                        <p class="eyebrow">ADMIN</p>
-                        <h1>Sign in required.</h1>
-                        <p class="lede">This area is private and available only to the portfolio administrator.</p>
-                        <a class="button button-primary" href="/admin/login">Go to admin login</a>
-                    </section>
-                </LayoutView>
-            </NotAuthorized>
-        </AuthorizeRouteView>
+        @if (IsProtectedAdminPage(routeData.PageType))
+        {
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+                <NotAuthorized>
+                    <LayoutView Layout="typeof(MainLayout)">
+                        <section class="page-shell simple-page">
+                            <p class="eyebrow">ADMIN</p>
+                            <h1>Sign in required.</h1>
+                            <p class="lede">This area is private and available only to the portfolio administrator.</p>
+                            <a class="button button-primary" href="/admin/login">Go to admin login</a>
+                        </section>
+                    </LayoutView>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        }
+        else
+        {
+            <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        }
+
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
     <NotFound>
@@ -25,3 +35,14 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    private static bool IsProtectedAdminPage(Type pageType)
+    {
+        var namespaceName = pageType.Namespace ?? string.Empty;
+        var isAdminPage = namespaceName.Contains(".Pages.Admin", StringComparison.Ordinal);
+        var isLoginPage = string.Equals(pageType.Name, "Login", StringComparison.Ordinal);
+
+        return isAdminPage && !isLoginPage;
+    }
+}
