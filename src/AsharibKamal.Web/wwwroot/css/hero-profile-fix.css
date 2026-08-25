@@ -1,0 +1,46 @@
+/* Hero profile image fit fix */
+.portfolio-profile{min-height:500px;display:grid;place-items:center;position:relative}
+.profile-photo-frame{
+    width:300px;
+    aspect-ratio:1;
+    height:auto;
+    border-radius:50%;
+    overflow:hidden;
+    position:relative;
+    z-index:3;
+    display:grid;
+    place-items:center;
+    padding:10px;
+    background:radial-gradient(circle at 50% 35%,rgba(76,116,255,.28),rgba(15,35,82,.9) 68%,#0b1735 100%);
+    border:1px solid rgba(132,165,255,.38);
+    box-shadow:0 30px 80px rgba(0,0,0,.30),0 0 0 12px rgba(49,91,255,.07);
+}
+.profile-photo-frame::before{
+    content:"";
+    position:absolute;
+    inset:8px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.16);
+    pointer-events:none;
+}
+.profile-photo-frame img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center center;
+    border-radius:50%;
+    display:block;
+    transform:scale(.98);
+}
+.profile-network{width:450px;height:450px}
+.profile-caption{bottom:8px}
+@media(max-width:900px){
+    .profile-photo-frame{width:270px}
+    .profile-network{width:410px;height:410px}
+}
+@media(max-width:640px){
+    .portfolio-profile{min-height:390px}
+    .profile-photo-frame{width:230px;padding:8px}
+    .profile-network{width:330px;height:330px}
+    .profile-caption{bottom:0}
+}
