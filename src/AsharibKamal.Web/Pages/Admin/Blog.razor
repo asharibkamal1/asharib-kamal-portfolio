@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@using Markdig
 @attribute [Authorize]
 @inject IAdminBlogService BlogAdmin
 
@@ -13,7 +15,7 @@
         <div>
             <p class="admin-kicker">CONTENT / BLOG</p>
             <h1>Blog management</h1>
-            <p>Write, organize and publish technical articles without changing application code.</p>
+            <p>Write, preview, optimize and publish technical articles from one professional workspace.</p>
         </div>
         <div class="admin-page-actions">
             <a class="admin-secondary-button" href="/blog" target="_blank">View public blog ↗</a>
@@ -35,23 +37,14 @@
 
     <div class="admin-blog-workspace">
         <section class="admin-panel admin-post-library">
-            <div class="admin-panel-head">
-                <div><span>ARTICLE LIBRARY</span><h2>Your posts</h2></div>
-                <span class="admin-count">@Posts.Count total</span>
-            </div>
-
+            <div class="admin-panel-head"><div><span>ARTICLE LIBRARY</span><h2>Your posts</h2></div><span class="admin-count">@Posts.Count total</span></div>
             @if (IsLoading)
             {
                 <div class="admin-loading">Loading articles…</div>
             }
             else if (Posts.Count == 0)
             {
-                <div class="admin-empty-state">
-                    <div class="admin-empty-icon">✎</div>
-                    <h3>No articles yet</h3>
-                    <p>Create your first article and keep it as a draft until it is ready.</p>
-                    <button type="button" class="admin-primary-button" @onclick="NewPost">Create first article</button>
-                </div>
+                <div class="admin-empty-state"><div class="admin-empty-icon">✎</div><h3>No articles yet</h3><p>Create your first article and keep it as a draft until it is ready.</p><button type="button" class="admin-primary-button" @onclick="NewPost">Create first article</button></div>
             }
             else
             {
@@ -61,23 +54,9 @@
                         <article class="admin-post-card @(Editor.Id == post.Id ? "selected" : "")">
                             <button type="button" class="admin-post-main" @onclick="() => EditAsync(post.Id)">
                                 <div class="admin-post-icon">@post.Title.FirstOrDefault().ToString().ToUpperInvariant()</div>
-                                <div class="admin-post-copy">
-                                    <div class="admin-post-title-row">
-                                        <strong>@post.Title</strong>
-                                        @if (post.IsFeatured) { <span class="admin-featured-badge">Featured</span> }
-                                    </div>
-                                    <span>@post.Category · /blog/@post.Slug</span>
-                                    <p>@post.Summary</p>
-                                </div>
+                                <div class="admin-post-copy"><div class="admin-post-title-row"><strong>@post.Title</strong>@if (post.IsFeatured){<span class="admin-featured-badge">Featured</span>}</div><span>@post.Category · /blog/@post.Slug</span><p>@post.Summary</p></div>
                             </button>
-                            <div class="admin-post-footer">
-                                <span class="admin-publish-state @(post.IsPublished ? "published" : "draft")">@(post.IsPublished ? "Published" : "Draft")</span>
-                                <div class="admin-post-actions">
-                                    <button type="button" class="admin-text-button" @onclick="() => EditAsync(post.Id)">Edit</button>
-                                    <button type="button" class="admin-text-button" @onclick="() => TogglePublishAsync(post)">@(post.IsPublished ? "Unpublish" : "Publish")</button>
-                                    <button type="button" class="admin-text-button danger" @onclick="() => DeleteAsync(post.Id)">Delete</button>
-                                </div>
-                            </div>
+                            <div class="admin-post-footer"><span class="admin-publish-state @(post.IsPublished ? "published" : "draft")">@(post.IsPublished ? "Published" : "Draft")</span><div class="admin-post-actions"><button type="button" class="admin-text-button" @onclick="() => EditAsync(post.Id)">Edit</button><button type="button" class="admin-text-button" @onclick="() => TogglePublishAsync(post)">@(post.IsPublished ? "Unpublish" : "Publish")</button><button type="button" class="admin-text-button danger" @onclick="() => DeleteAsync(post.Id)">Delete</button></div></div>
                         </article>
                     }
                 </div>
@@ -86,162 +65,119 @@
 
         <section class="admin-panel admin-blog-editor-panel">
             <div class="admin-editor-header">
-                <div>
-                    <span class="admin-editor-label">ARTICLE EDITOR</span>
-                    <h2>@(Editor.Id.HasValue ? "Edit article" : "Create new article")</h2>
-                    <p>@(Editor.Id.HasValue ? "Update the content and publishing settings below." : "Start with the essentials. You can save it as a draft and publish later.")</p>
-                </div>
-                @if (Editor.Id.HasValue)
-                {
-                    <button type="button" class="admin-icon-button" title="New article" @onclick="NewPost">＋</button>
-                }
+                <div><span class="admin-editor-label">ARTICLE EDITOR</span><h2>@(Editor.Id.HasValue ? "Edit article" : "Create new article")</h2><p>Use Markdown for headings, lists, links, images and code blocks, then preview the final article before publishing.</p></div>
+                <div class="admin-editor-header-actions"><button type="button" class="admin-secondary-button" @onclick="() => ShowPreview = !ShowPreview">@(ShowPreview ? "Back to editor" : "Preview article")</button>@if (Editor.Id.HasValue){<button type="button" class="admin-icon-button" title="New article" @onclick="NewPost">＋</button>}</div>
             </div>
 
-            <EditForm Model="Editor" OnValidSubmit="SaveAsync" FormName="admin-blog-editor" class="admin-editor-form">
-                <DataAnnotationsValidator />
+            @if (ShowPreview)
+            {
+                <div class="admin-live-preview">
+                    @if (!string.IsNullOrWhiteSpace(Editor.CoverImageUrl)) { <img class="admin-preview-cover" src="@Editor.CoverImageUrl" alt="Article cover preview" /> }
+                    <span class="admin-preview-category">@(string.IsNullOrWhiteSpace(Editor.Category) ? "Category" : Editor.Category)</span>
+                    <h1>@(string.IsNullOrWhiteSpace(Editor.Title) ? "Article title" : Editor.Title)</h1>
+                    <p class="admin-preview-summary">@Editor.Summary</p>
+                    <div class="admin-preview-prose">@((MarkupString)Markdown.ToHtml(Editor.Content ?? string.Empty, MarkdownPipeline))</div>
+                </div>
+            }
+            else
+            {
+                <EditForm Model="Editor" OnValidSubmit="SaveAsync" FormName="admin-blog-editor" class="admin-editor-form">
+                    <DataAnnotationsValidator />
 
-                <div class="admin-form-section">
-                    <div class="admin-form-section-title"><span>01</span><div><strong>Article details</strong><small>Title, URL and category</small></div></div>
-                    <div class="admin-editor-grid">
-                        <div class="admin-field full">
-                            <label>Article title</label>
-                            <InputText @bind-Value="Editor.Title" placeholder="e.g. Building Reliable APIs in ASP.NET Core" />
-                            <ValidationMessage For="() => Editor.Title" />
-                        </div>
-                        <div class="admin-field">
-                            <label>URL slug</label>
-                            <InputText @bind-Value="Editor.Slug" placeholder="reliable-apis-aspnet-core" />
-                            <small>Public URL: /blog/@(string.IsNullOrWhiteSpace(Editor.Slug) ? "your-article" : Editor.Slug)</small>
-                        </div>
-                        <div class="admin-field">
-                            <label>Category</label>
-                            <InputText @bind-Value="Editor.Category" placeholder="ASP.NET Core" />
+                    <div class="admin-form-section">
+                        <div class="admin-form-section-title"><span>01</span><div><strong>Article details</strong><small>Title, URL, category and cover</small></div></div>
+                        <div class="admin-editor-grid">
+                            <div class="admin-field full"><label>Article title</label><InputText @bind-Value="Editor.Title" placeholder="e.g. Building Reliable APIs in ASP.NET Core" /><ValidationMessage For="() => Editor.Title" /></div>
+                            <div class="admin-field"><label>URL slug</label><InputText @bind-Value="Editor.Slug" placeholder="reliable-apis-aspnet-core" /><small>Public URL: /blog/@(string.IsNullOrWhiteSpace(Editor.Slug) ? "your-article" : Editor.Slug)</small></div>
+                            <div class="admin-field"><label>Category</label><InputText @bind-Value="Editor.Category" placeholder="ASP.NET Core" /></div>
+                            <div class="admin-field full"><label>Cover image URL</label><InputText @bind-Value="Editor.CoverImageUrl" placeholder="https://.../cover-image.jpg" /><ValidationMessage For="() => Editor.CoverImageUrl" /><small>Use a wide image (recommended 1600×900). It appears on the article page and social previews.</small></div>
                         </div>
                     </div>
-                </div>
 
-                <div class="admin-form-section">
-                    <div class="admin-form-section-title"><span>02</span><div><strong>Content</strong><small>Summary and full article</small></div></div>
-                    <div class="admin-editor-grid">
-                        <div class="admin-field full">
-                            <label>Short summary</label>
-                            <InputTextArea @bind-Value="Editor.Summary" placeholder="A concise summary shown on blog cards and search previews." class="admin-summary-input" />
-                            <ValidationMessage For="() => Editor.Summary" />
-                        </div>
-                        <div class="admin-field full">
-                            <label>Article content</label>
-                            <InputTextArea @bind-Value="Editor.Content" placeholder="Write your article content here…" class="admin-content-editor" />
-                            <ValidationMessage For="() => Editor.Content" />
-                        </div>
-                        <div class="admin-field full">
-                            <label>Tags</label>
-                            <InputText @bind-Value="Editor.Tags" placeholder=".NET, ASP.NET Core, APIs, Architecture" />
-                            <small>Separate tags with commas.</small>
+                    <div class="admin-form-section">
+                        <div class="admin-form-section-title"><span>02</span><div><strong>Content</strong><small>Summary, Markdown editor and tags</small></div></div>
+                        <div class="admin-editor-grid">
+                            <div class="admin-field full"><label>Short summary</label><InputTextArea @bind-Value="Editor.Summary" placeholder="A concise summary shown on blog cards and search previews." class="admin-summary-input" /><ValidationMessage For="() => Editor.Summary" /></div>
+                            <div class="admin-field full">
+                                <div class="admin-markdown-label"><label>Article content</label><span>Markdown supported</span></div>
+                                <div class="admin-markdown-toolbar">
+                                    <button type="button" @onclick='() => InsertMarkdown("\n## Heading\n")'>H2</button>
+                                    <button type="button" @onclick='() => InsertMarkdown("**bold text**")'><strong>B</strong></button>
+                                    <button type="button" @onclick='() => InsertMarkdown("[link text](https://example.com)")'>Link</button>
+                                    <button type="button" @onclick='() => InsertMarkdown("\n![image description](https://example.com/image.jpg)\n")'>Image</button>
+                                    <button type="button" @onclick='() => InsertMarkdown("\n- List item\n- List item\n")'>List</button>
+                                    <button type="button" @onclick='() => InsertMarkdown("\n> Important quote\n")'>Quote</button>
+                                    <button type="button" @onclick='() => InsertMarkdown("\n```csharp\n// your code here\n```\n")'>Code</button>
+                                </div>
+                                <InputTextArea @bind-Value="Editor.Content" placeholder="# Start writing your article…" class="admin-content-editor admin-markdown-editor" />
+                                <ValidationMessage For="() => Editor.Content" />
+                            </div>
+                            <div class="admin-field full"><label>Tags</label><InputText @bind-Value="Editor.Tags" placeholder=".NET, ASP.NET Core, APIs, Architecture" /><small>Separate tags with commas.</small></div>
                         </div>
                     </div>
-                </div>
 
-                <div class="admin-form-section admin-publish-section">
-                    <div class="admin-form-section-title"><span>03</span><div><strong>Publishing</strong><small>Control visibility and promotion</small></div></div>
-                    <div class="admin-setting-cards">
-                        <label class="admin-setting-card">
-                            <InputCheckbox @bind-Value="Editor.IsPublished" />
-                            <span><strong>Publish article</strong><small>Make this article visible on the public website.</small></span>
-                        </label>
-                        <label class="admin-setting-card">
-                            <InputCheckbox @bind-Value="Editor.IsFeatured" />
-                            <span><strong>Featured article</strong><small>Highlight this article in featured content areas.</small></span>
-                        </label>
+                    <div class="admin-form-section">
+                        <div class="admin-form-section-title"><span>03</span><div><strong>SEO & discovery</strong><small>Control search and social metadata</small></div></div>
+                        <div class="admin-editor-grid">
+                            <div class="admin-field full"><label>SEO title <span class="admin-character-count">@(Editor.SeoTitle?.Length ?? 0)/70</span></label><InputText @bind-Value="Editor.SeoTitle" placeholder="Optional — defaults to article title" /><ValidationMessage For="() => Editor.SeoTitle" /></div>
+                            <div class="admin-field full"><label>SEO description <span class="admin-character-count">@(Editor.SeoDescription?.Length ?? 0)/170</span></label><InputTextArea @bind-Value="Editor.SeoDescription" placeholder="Optional — defaults to article summary" class="admin-summary-input" /><ValidationMessage For="() => Editor.SeoDescription" /></div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="admin-editor-footer">
-                    <span>@(Editor.IsPublished ? "This article will be published." : "This article will remain a draft.")</span>
-                    <div>
-                        <button type="button" class="admin-secondary-button" @onclick="NewPost">Clear</button>
-                        <button class="admin-primary-button" type="submit" disabled="@IsSaving">@(IsSaving ? "Saving…" : "Save article")</button>
+                    <div class="admin-form-section admin-publish-section">
+                        <div class="admin-form-section-title"><span>04</span><div><strong>Publishing</strong><small>Control visibility and promotion</small></div></div>
+                        <div class="admin-setting-cards"><label class="admin-setting-card"><InputCheckbox @bind-Value="Editor.IsPublished" /><span><strong>Publish article</strong><small>Make this article visible on the public website.</small></span></label><label class="admin-setting-card"><InputCheckbox @bind-Value="Editor.IsFeatured" /><span><strong>Featured article</strong><small>Highlight this article in featured content areas.</small></span></label></div>
                     </div>
-                </div>
-            </EditForm>
+
+                    <div class="admin-editor-footer"><span>@(Editor.IsPublished ? "This article will be published." : "This article will remain a draft.")</span><div><button type="button" class="admin-secondary-button" @onclick="NewPost">Clear</button><button type="button" class="admin-secondary-button" @onclick="() => ShowPreview = true">Preview</button><button class="admin-primary-button" type="submit" disabled="@IsSaving">@(IsSaving ? "Saving…" : "Save article")</button></div></div>
+                </EditForm>
+            }
         </section>
     </div>
 </section>
 
 @code {
+    private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     private List<AdminBlogPostDto> Posts { get; set; } = [];
     private AdminBlogPostEditDto Editor { get; set; } = new();
     private bool IsLoading = true;
     private bool IsSaving;
     private bool IsError;
+    private bool ShowPreview;
     private string StatusMessage = string.Empty;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
     private async Task LoadAsync()
     {
-        try
-        {
-            IsLoading = true;
-            Posts = (await BlogAdmin.GetAllAsync()).ToList();
-        }
-        catch
-        {
-            IsError = true;
-            StatusMessage = "Blog posts could not be loaded. Check the database connection and try again.";
-        }
+        try { IsLoading = true; Posts = (await BlogAdmin.GetAllAsync()).ToList(); }
+        catch { IsError = true; StatusMessage = "Blog posts could not be loaded. Check the database connection and try again."; }
         finally { IsLoading = false; }
     }
 
-    private void NewPost()
-    {
-        Editor = new AdminBlogPostEditDto();
-        StatusMessage = string.Empty;
-        IsError = false;
-    }
+    private void NewPost() { Editor = new AdminBlogPostEditDto(); StatusMessage = string.Empty; IsError = false; ShowPreview = false; }
 
     private async Task EditAsync(Guid id)
     {
-        var post = await BlogAdmin.GetByIdAsync(id);
-        if (post is null) return;
-        Editor = new AdminBlogPostEditDto { Id = post.Id, Title = post.Title, Slug = post.Slug, Summary = post.Summary, Content = post.Content, Category = post.Category, Tags = post.Tags, IsPublished = post.IsPublished, IsFeatured = post.IsFeatured };
-        StatusMessage = string.Empty;
-        IsError = false;
+        var post = await BlogAdmin.GetByIdAsync(id); if (post is null) return;
+        Editor = new AdminBlogPostEditDto { Id = post.Id, Title = post.Title, Slug = post.Slug, Summary = post.Summary, Content = post.Content, Category = post.Category, Tags = post.Tags, CoverImageUrl = post.CoverImageUrl, SeoTitle = post.SeoTitle, SeoDescription = post.SeoDescription, IsPublished = post.IsPublished, IsFeatured = post.IsFeatured };
+        StatusMessage = string.Empty; IsError = false; ShowPreview = false;
+    }
+
+    private void InsertMarkdown(string value)
+    {
+        Editor.Content ??= string.Empty;
+        if (!string.IsNullOrWhiteSpace(Editor.Content) && !Editor.Content.EndsWith('\n')) Editor.Content += "\n";
+        Editor.Content += value;
     }
 
     private async Task SaveAsync()
     {
-        try
-        {
-            IsSaving = true;
-            IsError = false;
-            var id = await BlogAdmin.SaveAsync(Editor);
-            StatusMessage = Editor.IsPublished ? "Article saved and published successfully." : "Article saved as draft successfully.";
-            await LoadAsync();
-            await EditAsync(id);
-            StatusMessage = Editor.IsPublished ? "Article saved and published successfully." : "Article saved as draft successfully.";
-        }
-        catch (Exception ex)
-        {
-            IsError = true;
-            StatusMessage = ex.Message;
-        }
+        try { IsSaving = true; IsError = false; var id = await BlogAdmin.SaveAsync(Editor); await LoadAsync(); await EditAsync(id); StatusMessage = Editor.IsPublished ? "Article saved and published successfully." : "Article saved as draft successfully."; }
+        catch (Exception ex) { IsError = true; StatusMessage = ex.Message; }
         finally { IsSaving = false; }
     }
 
-    private async Task TogglePublishAsync(AdminBlogPostDto post)
-    {
-        await BlogAdmin.SetPublishedAsync(post.Id, !post.IsPublished);
-        await LoadAsync();
-        StatusMessage = post.IsPublished ? "Article moved back to draft." : "Article published successfully.";
-        IsError = false;
-    }
-
-    private async Task DeleteAsync(Guid id)
-    {
-        await BlogAdmin.DeleteAsync(id);
-        if (Editor.Id == id) NewPost();
-        await LoadAsync();
-        StatusMessage = "Article deleted.";
-        IsError = false;
-    }
+    private async Task TogglePublishAsync(AdminBlogPostDto post) { await BlogAdmin.SetPublishedAsync(post.Id, !post.IsPublished); await LoadAsync(); StatusMessage = post.IsPublished ? "Article moved back to draft." : "Article published successfully."; IsError = false; }
+    private async Task DeleteAsync(Guid id) { await BlogAdmin.DeleteAsync(id); if (Editor.Id == id) NewPost(); await LoadAsync(); StatusMessage = "Article deleted."; IsError = false; }
 }
