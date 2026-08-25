@@ -1,0 +1,45 @@
+@page "/admin/login"
+@using Microsoft.AspNetCore.Components
+
+<PageTitle>Admin Login — Asharib Kamal</PageTitle>
+<HeadContent>
+    <meta name="robots" content="noindex,nofollow" />
+</HeadContent>
+
+<section class="admin-login-page">
+    <div class="admin-login-card">
+        <a class="admin-back-link" href="/">← Back to portfolio</a>
+        <div class="admin-login-brand"><span>AK</span></div>
+        <p class="admin-kicker">PRIVATE ADMIN</p>
+        <h1>Portfolio control center</h1>
+        <p class="admin-login-copy">Sign in to review subscribers, contact leads and manage portfolio content.</p>
+
+        @if (Error == "invalid")
+        {
+            <div class="admin-alert error">The email or password is incorrect.</div>
+        }
+        else if (Error == "not-configured")
+        {
+            <div class="admin-alert warning">Admin credentials have not been configured on this environment.</div>
+        }
+
+        <form method="post" action="/admin/login" class="admin-login-form">
+            <input type="hidden" name="returnUrl" value="/admin" />
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" autocomplete="username" required placeholder="admin@example.com" />
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" name="password" autocomplete="current-password" required placeholder="Your admin password" />
+            </label>
+            <button type="submit" class="button button-primary admin-login-button">Sign in to dashboard →</button>
+        </form>
+        <p class="admin-security-note">Admin credentials are configured through server environment variables and are not stored in the public repository.</p>
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "error")]
+    public string? Error { get; set; }
+}
