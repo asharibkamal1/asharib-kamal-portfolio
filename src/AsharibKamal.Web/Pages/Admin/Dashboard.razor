@@ -1,5 +1,6 @@
 @page "/admin"
 @rendermode InteractiveServer
+@layout AdminLayout
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @inject IAdminDashboardService AdminDashboard
@@ -7,16 +8,16 @@
 <PageTitle>Admin Dashboard — Asharib Kamal</PageTitle>
 <HeadContent><meta name="robots" content="noindex,nofollow" /></HeadContent>
 
-<section class="admin-shell page-shell">
-    <header class="admin-topbar">
+<section class="admin-page">
+    <header class="admin-page-header">
         <div>
-            <p class="admin-kicker">PORTFOLIO ADMIN</p>
+            <p class="admin-kicker">OVERVIEW</p>
             <h1>Dashboard</h1>
-            <p>Monitor website leads and newsletter growth from one place.</p>
+            <p>Monitor your portfolio content, audience growth and incoming opportunities.</p>
         </div>
-        <div class="admin-top-actions">
-            <a class="button button-ghost" href="/" target="_blank">View website ↗</a>
-            <form method="post" action="/admin/logout"><button class="button button-primary" type="submit">Sign out</button></form>
+        <div class="admin-page-actions">
+            <a class="admin-secondary-button" href="/" target="_blank">View website ↗</a>
+            <a class="admin-primary-button" href="/admin/blog">Create article <span>→</span></a>
         </div>
     </header>
 
@@ -31,15 +32,15 @@
     else if (DashboardData is not null)
     {
         <div class="admin-stat-grid">
-            <article class="admin-stat-card"><span>Subscribers</span><strong>@DashboardData.TotalSubscribers</strong><small>@DashboardData.ActiveSubscribers active</small></article>
-            <article class="admin-stat-card"><span>New leads</span><strong>@DashboardData.NewContactMessages</strong><small>Unread contact messages</small></article>
-            <article class="admin-stat-card"><span>Total messages</span><strong>@DashboardData.TotalContactMessages</strong><small>All website enquiries</small></article>
-            <article class="admin-stat-card accent"><span>Conversion engine</span><strong>Live</strong><small>Homepage + newsletter capture</small></article>
+            <article class="admin-stat-card"><span>Subscribers</span><strong>@DashboardData.TotalSubscribers</strong><small>@DashboardData.ActiveSubscribers active subscribers</small></article>
+            <article class="admin-stat-card"><span>New leads</span><strong>@DashboardData.NewContactMessages</strong><small>Unread website enquiries</small></article>
+            <article class="admin-stat-card"><span>Total messages</span><strong>@DashboardData.TotalContactMessages</strong><small>All contact submissions</small></article>
+            <article class="admin-stat-card accent"><span>Website status</span><strong>Live</strong><small>Lead capture is active</small></article>
         </div>
 
-        <div class="admin-grid">
+        <div class="admin-dashboard-grid">
             <section class="admin-panel">
-                <div class="admin-panel-head"><div><span>CONTACT LEADS</span><h2>Recent messages</h2></div><span class="admin-count">@DashboardData.TotalContactMessages total</span></div>
+                <div class="admin-panel-head"><div><span>CONTACT LEADS</span><h2>Recent messages</h2></div><a href="/admin/leads" class="admin-panel-link">View all →</a></div>
                 @if (DashboardData.RecentMessages.Count == 0)
                 {
                     <div class="admin-empty">No contact messages yet.</div>
@@ -72,7 +73,7 @@
             </section>
 
             <section class="admin-panel">
-                <div class="admin-panel-head"><div><span>AUDIENCE</span><h2>Recent subscribers</h2></div><span class="admin-count">@DashboardData.ActiveSubscribers active</span></div>
+                <div class="admin-panel-head"><div><span>AUDIENCE</span><h2>Recent subscribers</h2></div><a href="/admin/subscribers" class="admin-panel-link">View all →</a></div>
                 @if (DashboardData.RecentSubscribers.Count == 0)
                 {
                     <div class="admin-empty">No subscribers yet.</div>
@@ -93,8 +94,8 @@
         </div>
 
         <section class="admin-next-panel">
-            <div><span class="admin-kicker">NEXT CMS MODULES</span><h2>Content management foundation is ready.</h2><p>The next admin modules will manage blog posts, portfolio projects, draft/publish state and website content without code changes.</p></div>
-            <div class="admin-module-pills"><span>Blog CMS</span><span>Projects CMS</span><span>SEO</span><span>Analytics</span></div>
+            <div><span class="admin-kicker">CMS WORKSPACE</span><h2>Manage your portfolio from one control center.</h2><p>Blog management is active. Projects, subscriber management, leads, analytics and settings are available from the admin navigation as we complete each module.</p></div>
+            <div class="admin-module-pills"><span>Blog CMS</span><span>Projects</span><span>Subscribers</span><span>Analytics</span></div>
         </section>
     }
 </section>
