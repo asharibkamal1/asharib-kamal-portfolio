@@ -1,0 +1,135 @@
+@page "/admin"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IAdminDashboardService AdminDashboard
+
+<PageTitle>Admin Dashboard — Asharib Kamal</PageTitle>
+<HeadContent><meta name="robots" content="noindex,nofollow" /></HeadContent>
+
+<section class="admin-shell page-shell">
+    <header class="admin-topbar">
+        <div>
+            <p class="admin-kicker">PORTFOLIO ADMIN</p>
+            <h1>Dashboard</h1>
+            <p>Monitor website leads and newsletter growth from one place.</p>
+        </div>
+        <div class="admin-top-actions">
+            <a class="button button-ghost" href="/" target="_blank">View website ↗</a>
+            <form method="post" action="/admin/logout"><button class="button button-primary" type="submit">Sign out</button></form>
+        </div>
+    </header>
+
+    @if (IsLoading)
+    {
+        <div class="admin-loading">Loading dashboard…</div>
+    }
+    else if (!string.IsNullOrWhiteSpace(ErrorMessage))
+    {
+        <div class="admin-alert error">@ErrorMessage</div>
+    }
+    else if (Dashboard is not null)
+    {
+        <div class="admin-stat-grid">
+            <article class="admin-stat-card"><span>Subscribers</span><strong>@Dashboard.TotalSubscribers</strong><small>@Dashboard.ActiveSubscribers active</small></article>
+            <article class="admin-stat-card"><span>New leads</span><strong>@Dashboard.NewContactMessages</strong><small>Unread contact messages</small></article>
+            <article class="admin-stat-card"><span>Total messages</span><strong>@Dashboard.TotalContactMessages</strong><small>All website enquiries</small></article>
+            <article class="admin-stat-card accent"><span>Conversion engine</span><strong>Live</strong><small>Homepage + newsletter capture</small></article>
+        </div>
+
+        <div class="admin-grid">
+            <section class="admin-panel">
+                <div class="admin-panel-head"><div><span>CONTACT LEADS</span><h2>Recent messages</h2></div><span class="admin-count">@Dashboard.TotalContactMessages total</span></div>
+                @if (Dashboard.RecentMessages.Count == 0)
+                {
+                    <div class="admin-empty">No contact messages yet.</div>
+                }
+                else
+                {
+                    <div class="admin-list">
+                        @foreach (var message in Dashboard.RecentMessages)
+                        {
+                            <article class="admin-message-row @(message.Status == "New" ? "is-new" : "")">
+                                <div class="admin-row-main">
+                                    <div class="admin-avatar">@message.Name.FirstOrDefault().ToString().ToUpperInvariant()</div>
+                                    <div><strong>@message.Name</strong><span>@message.Email</span><p>@message.Subject</p></div>
+                                </div>
+                                <div class="admin-row-actions">
+                                    <span class="admin-date">@message.CreatedAtUtc.ToLocalTime().ToString("dd MMM")</span>
+                                    @if (message.Status == "New")
+                                    {
+                                        <button class="admin-text-button" @onclick="() => MarkReadAsync(message.Id)">Mark read</button>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-status">Read</span>
+                                    }
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="admin-panel">
+                <div class="admin-panel-head"><div><span>AUDIENCE</span><h2>Recent subscribers</h2></div><span class="admin-count">@Dashboard.ActiveSubscribers active</span></div>
+                @if (Dashboard.RecentSubscribers.Count == 0)
+                {
+                    <div class="admin-empty">No subscribers yet.</div>
+                }
+                else
+                {
+                    <div class="admin-list">
+                        @foreach (var subscriber in Dashboard.RecentSubscribers)
+                        {
+                            <article class="admin-subscriber-row">
+                                <div><strong>@subscriber.Email</strong><span>@subscriber.Source · @subscriber.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</span></div>
+                                <button class="admin-toggle @(subscriber.IsActive ? "active" : "")" @onclick="() => ToggleSubscriberAsync(subscriber.Id, !subscriber.IsActive)">@(subscriber.IsActive ? "Active" : "Inactive")</button>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+
+        <section class="admin-next-panel">
+            <div><span class="admin-kicker">NEXT CMS MODULES</span><h2>Content management foundation is ready.</h2><p>The next admin modules will manage blog posts, portfolio projects, draft/publish state and website content without code changes.</p></div>
+            <div class="admin-module-pills"><span>Blog CMS</span><span>Projects CMS</span><span>SEO</span><span>Analytics</span></div>
+        </section>
+    }
+</section>
+
+@code {
+    private AdminDashboardDto? Dashboard { get; set; }
+    private bool IsLoading { get; set; } = true;
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
+
+    private async Task ReloadAsync()
+    {
+        try
+        {
+            IsLoading = true;
+            Dashboard = await AdminDashboard.GetDashboardAsync();
+            ErrorMessage = string.Empty;
+        }
+        catch
+        {
+            ErrorMessage = "The dashboard could not load. Check the portfolio database connection and try again.";
+        }
+        finally { IsLoading = false; }
+    }
+
+    private async Task MarkReadAsync(Guid id)
+    {
+        await AdminDashboard.MarkMessageReadAsync(id);
+        await ReloadAsync();
+    }
+
+    private async Task ToggleSubscriberAsync(Guid id, bool active)
+    {
+        await AdminDashboard.SetSubscriberStatusAsync(id, active);
+        await ReloadAsync();
+    }
+}
