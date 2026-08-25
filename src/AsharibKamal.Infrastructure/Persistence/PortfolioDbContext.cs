@@ -24,6 +24,9 @@ public sealed class PortfolioDbContext(DbContextOptions<PortfolioDbContext> opti
             entity.HasIndex(x => x.Slug).IsUnique();
             entity.Property(x => x.Title).HasMaxLength(220);
             entity.Property(x => x.Slug).HasMaxLength(220);
+            entity.Property(x => x.CoverImageUrl).HasMaxLength(1000);
+            entity.Property(x => x.SeoTitle).HasMaxLength(70);
+            entity.Property(x => x.SeoDescription).HasMaxLength(170);
         });
 
         modelBuilder.Entity<Subscriber>(entity =>
