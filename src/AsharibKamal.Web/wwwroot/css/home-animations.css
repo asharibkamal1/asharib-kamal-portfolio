@@ -39,6 +39,27 @@
 /* A subtle moving glow under the visual keeps the hero alive without looking game-like. */
 .portfolio-profile:after{content:"";position:absolute;z-index:0;width:62%;height:12%;bottom:3%;left:19%;border-radius:50%;background:rgba(49,91,255,.22);filter:blur(30px);transform:scaleX(.9);animation:shadowBreath 5.8s ease-in-out infinite;pointer-events:none}
 
+/* Engineering journey: scroll-triggered, sequential, content-safe motion. */
+.experience-section{position:relative;overflow:hidden}
+.experience-section .section-top-row{transition:transform .6s cubic-bezier(.2,.75,.25,1)}
+.experience-section.journey-active .section-top-row{animation:journeyHeading .7s cubic-bezier(.2,.75,.25,1) both}
+.experience-timeline{position:relative}
+.experience-timeline:after{content:"";position:absolute;left:138px;top:8px;bottom:8px;width:2px;border-radius:99px;background:linear-gradient(180deg,#315bff 0%,#7b3cff 48%,rgba(123,60,255,.08) 100%);transform:scaleY(.08);transform-origin:top;pointer-events:none}
+.experience-section.journey-active .experience-timeline:after{animation:journeyLine 1.8s .12s cubic-bezier(.2,.75,.25,1) forwards}
+.experience-row{position:relative;transition:transform .28s ease}
+.experience-row.step-active{animation:journeyStep .68s cubic-bezier(.2,.75,.25,1) both}
+.experience-row:nth-child(2).step-active{animation-delay:.10s}.experience-row:nth-child(3).step-active{animation-delay:.20s}.experience-row:nth-child(4).step-active{animation-delay:.30s}.experience-row:nth-child(5).step-active{animation-delay:.40s}.experience-row:nth-child(6).step-active{animation-delay:.50s}
+.experience-marker span{position:relative;z-index:3;transition:transform .3s ease,box-shadow .3s ease,background .3s ease}
+.experience-row.step-active .experience-marker span{animation:journeyDot .75s cubic-bezier(.2,.75,.25,1) both}
+.experience-row:nth-child(2).step-active .experience-marker span{animation-delay:.10s}.experience-row:nth-child(3).step-active .experience-marker span{animation-delay:.20s}.experience-row:nth-child(4).step-active .experience-marker span{animation-delay:.30s}.experience-row:nth-child(5).step-active .experience-marker span{animation-delay:.40s}
+.experience-card{position:relative;overflow:hidden;transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.experience-card:before{content:"";position:absolute;left:0;top:18%;bottom:18%;width:3px;border-radius:0 99px 99px 0;background:linear-gradient(#315bff,#7b3cff);transform:scaleY(0);transform-origin:center;transition:transform .35s ease}
+.experience-row:hover .experience-card{transform:translateX(5px);border-color:#c8d5f4;box-shadow:0 18px 42px rgba(33,58,104,.10)}
+.experience-row:hover .experience-card:before{transform:scaleY(1)}
+.experience-row:hover .experience-marker span{transform:scale(1.18);background:#6d4aff;box-shadow:0 0 0 8px rgba(75,92,255,.10),0 0 22px rgba(75,92,255,.28)}
+.experience-card .tag-row span{transition:transform .22s ease,border-color .22s ease,background .22s ease}
+.experience-card .tag-row span:hover{transform:translateY(-2px);border-color:#b9c9ef;background:#f3f6ff}
+
 @keyframes heroSlideIn{from{transform:translateY(18px)}to{transform:translateY(0)}}
 @keyframes profileEnter{from{transform:translate3d(24px,14px,0) scale(.975)}to{transform:translate3d(var(--hero-x,0px),var(--hero-y,0px),0) scale(1)}}
 @keyframes heroAura{from{transform:translate3d(-12px,-8px,0) scale(.95)}to{transform:translate3d(18px,12px,0) scale(1.08)}}
@@ -54,7 +75,11 @@
 @keyframes badgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @keyframes captionFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes shadowBreath{0%,100%{opacity:.42;transform:scaleX(.86)}50%{opacity:.72;transform:scaleX(1.04)}}
+@keyframes journeyHeading{from{transform:translateY(14px)}to{transform:none}}
+@keyframes journeyLine{from{transform:scaleY(.08)}to{transform:scaleY(1)}}
+@keyframes journeyStep{from{transform:translateX(18px) translateY(8px)}to{transform:none}}
+@keyframes journeyDot{0%{transform:scale(.72);box-shadow:0 0 0 0 rgba(49,91,255,.22)}60%{transform:scale(1.22);box-shadow:0 0 0 10px rgba(49,91,255,.06)}100%{transform:scale(1);box-shadow:0 0 0 6px #edf2ff}}
 
-@media(max-width:900px){.portfolio-hero:after{width:330px;height:330px;right:-8%}.profile-photo-frame{animation-duration:6.6s}.profile-badge{animation-duration:5.4s}}
-@media(max-width:640px){.portfolio-hero-copy .hero-actions{animation-delay:.16s}.portfolio-hero-copy .hero-metrics{animation-delay:.22s}.profile-photo-frame{animation-name:profileFloatMobile}@keyframes profileFloatMobile{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}}
-@media(prefers-reduced-motion:reduce){.portfolio-hero:after,.portfolio-hero-copy .section-kicker,.portfolio-hero-copy h1,.portfolio-hero-copy>p,.portfolio-hero-copy .hero-actions,.portfolio-hero-copy .hero-metrics,.portfolio-hero-copy h1>span,.portfolio-hero-copy h1>span:after,.portfolio-hero-copy .button-primary:after,.hero-metrics strong,.portfolio-profile,.profile-photo-frame,.profile-photo-frame:after,.profile-network,.profile-network:before,.profile-network:after,.profile-caption,.profile-badge,.portfolio-profile:after{animation:none!important}.portfolio-profile{transform:none!important}}
+@media(max-width:900px){.portfolio-hero:after{width:330px;height:330px;right:-8%}.profile-photo-frame{animation-duration:6.6s}.profile-badge{animation-duration:5.4s}.experience-timeline:after{left:12px}}
+@media(max-width:640px){.portfolio-hero-copy .hero-actions{animation-delay:.16s}.portfolio-hero-copy .hero-metrics{animation-delay:.22s}.profile-photo-frame{animation-name:profileFloatMobile}@keyframes profileFloatMobile{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}.experience-row:hover .experience-card{transform:none}}
+@media(prefers-reduced-motion:reduce){.portfolio-hero:after,.portfolio-hero-copy .section-kicker,.portfolio-hero-copy h1,.portfolio-hero-copy>p,.portfolio-hero-copy .hero-actions,.portfolio-hero-copy .hero-metrics,.portfolio-hero-copy h1>span,.portfolio-hero-copy h1>span:after,.portfolio-hero-copy .button-primary:after,.hero-metrics strong,.portfolio-profile,.profile-photo-frame,.profile-photo-frame:after,.profile-network,.profile-network:before,.profile-network:after,.profile-caption,.profile-badge,.portfolio-profile:after,.experience-section .section-top-row,.experience-timeline:after,.experience-row,.experience-marker span{animation:none!important}.portfolio-profile{transform:none!important}.experience-timeline:after{transform:scaleY(1)!important}}
