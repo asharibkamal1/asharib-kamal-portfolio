@@ -1,14 +1,17 @@
 @inherits LayoutComponentBase
 
 <div class="site-shell">
-    <header class="site-header" data-header>
-        <div class="header-inner page-shell">
-            <a class="brand" href="/" aria-label="Asharib Kamal home">
-                <span class="brand-mark">AK</span>
-                <span class="brand-copy"><strong>Asharib Kamal</strong><small>.NET & Backend Engineer</small></span>
+    <header class="site-header professional-header" data-header>
+        <div class="header-inner page-shell professional-header-inner">
+            <a class="brand professional-brand" href="/" aria-label="Asharib Kamal home">
+                <span class="brand-mark professional-brand-mark">AK</span>
+                <span class="brand-copy">
+                    <strong>Asharib Kamal</strong>
+                    <small>Senior .NET / Backend Engineer</small>
+                </span>
             </a>
 
-            <nav class="desktop-nav" aria-label="Primary navigation">
+            <nav class="desktop-nav professional-nav" aria-label="Primary navigation">
                 <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
                 <NavLink href="/about">About</NavLink>
                 <NavLink href="/experience">Experience</NavLink>
@@ -18,7 +21,10 @@
                 <NavLink href="/contact">Contact</NavLink>
             </nav>
 
-            <a class="button button-primary button-small header-cta" href="/contact">Let's Talk</a>
+            <div class="header-actions">
+                <a class="header-social-link" href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer" aria-label="GitHub profile">GitHub</a>
+                <a class="button button-primary button-small header-cta" href="/contact">Let's Work Together <span>→</span></a>
+            </div>
         </div>
     </header>
 
