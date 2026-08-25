@@ -1,10 +1,26 @@
 @page "/blog/{Slug}"
 @using AsharibKamal.Application.Abstractions
 @using AsharibKamal.Application.DTOs
+@using Microsoft.AspNetCore.Components
+@using Markdig
 @inject IPublicBlogService PublicBlog
-<PageTitle>@Title — Asharib Kamal</PageTitle>
 
-<section class="screen-hero">
+<PageTitle>@PageTitleText</PageTitle>
+<HeadContent>
+    <meta name="description" content="@MetaDescription" />
+    @if (Article is not null)
+    {
+        <meta property="og:title" content="@PageTitleText" />
+        <meta property="og:description" content="@MetaDescription" />
+        <meta property="og:type" content="article" />
+        @if (!string.IsNullOrWhiteSpace(Article.CoverImageUrl))
+        {
+            <meta property="og:image" content="@Article.CoverImageUrl" />
+        }
+    }
+</HeadContent>
+
+<section class="screen-hero article-hero">
     <div class="page-shell screen-hero-inner">
         <a class="back-link" href="/blog">← All Articles</a>
         @if (Article is not null)
@@ -12,6 +28,16 @@
             <span class="section-kicker">@Article.Category · @Article.ReadTime</span>
             <h1>@Article.Title</h1>
             <p>@Article.Summary</p>
+            <div class="article-hero-meta">
+                @if (Article.PublishedAtUtc.HasValue)
+                {
+                    <span>@Article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
+                }
+                @if (Article.Tags.Count > 0)
+                {
+                    <span>@string.Join(" · ", Article.Tags.Take(4))</span>
+                }
+            </div>
         }
     </div>
 </section>
@@ -31,30 +57,43 @@
     }
     else
     {
-        <article class="article-shell">
-            <div class="article-cover"></div>
-            <div class="article-prose">
-                <div class="article-published-meta">
-                    @if (Article.PublishedAtUtc.HasValue)
-                    {
-                        <span>Published @Article.PublishedAtUtc.Value.ToLocalTime().ToString("dd MMM yyyy")</span>
-                    }
-                    @if (Article.Tags.Count > 0)
-                    {
-                        <span>@string.Join(" · ", Article.Tags)</span>
-                    }
-                </div>
-                <div class="cms-article-content">@Article.Content</div>
+        <article class="article-shell public-article-shell">
+            @if (!string.IsNullOrWhiteSpace(Article.CoverImageUrl))
+            {
+                <figure class="public-article-cover">
+                    <img src="@Article.CoverImageUrl" alt="@Article.Title cover image" />
+                </figure>
+            }
+            else
+            {
+                <div class="article-cover article-cover-fallback"><span>@Article.Category</span></div>
+            }
+
+            <div class="article-prose public-markdown-prose">
+                @((MarkupString)Markdown.ToHtml(Article.Content ?? string.Empty, MarkdownPipeline))
             </div>
+
+            @if (Article.Tags.Count > 0)
+            {
+                <footer class="article-tags">
+                    @foreach (var tag in Article.Tags)
+                    {
+                        <span>@tag</span>
+                    }
+                </footer>
+            }
         </article>
     }
 </section>
 
 @code {
+    private static readonly MarkdownPipeline MarkdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+
     [Parameter] public string Slug { get; set; } = string.Empty;
     private PublicBlogPostDto? Article { get; set; }
     private bool IsLoading { get; set; } = true;
-    private string Title => Article?.Title ?? "Article";
+    private string PageTitleText => Article?.SeoTitle ?? Article?.Title ?? "Article";
+    private string MetaDescription => Article?.SeoDescription ?? Article?.Summary ?? "Technical article by Asharib Kamal.";
 
     protected override async Task OnParametersSetAsync()
     {
