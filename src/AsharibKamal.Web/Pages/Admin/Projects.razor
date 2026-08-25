@@ -17,23 +17,23 @@
     </header>
 
     <div class="admin-blog-stats">
-        <div><span>All projects</span><strong>@Projects.Count</strong></div>
-        <div><span>Published</span><strong>@Projects.Count(x => x.IsPublished)</strong></div>
-        <div><span>Drafts</span><strong>@Projects.Count(x => !x.IsPublished)</strong></div>
-        <div><span>Featured</span><strong>@Projects.Count(x => x.IsFeatured)</strong></div>
+        <div><span>All projects</span><strong>@ProjectItems.Count</strong></div>
+        <div><span>Published</span><strong>@ProjectItems.Count(x => x.IsPublished)</strong></div>
+        <div><span>Drafts</span><strong>@ProjectItems.Count(x => !x.IsPublished)</strong></div>
+        <div><span>Featured</span><strong>@ProjectItems.Count(x => x.IsFeatured)</strong></div>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(StatusMessage)) { <div class="admin-alert @(IsError ? "error" : "success")">@StatusMessage</div> }
 
     <div class="admin-blog-workspace">
         <section class="admin-panel admin-post-library">
-            <div class="admin-panel-head"><div><span>PROJECT LIBRARY</span><h2>Case studies</h2></div><span class="admin-count">@Projects.Count total</span></div>
+            <div class="admin-panel-head"><div><span>PROJECT LIBRARY</span><h2>Case studies</h2></div><span class="admin-count">@ProjectItems.Count total</span></div>
             @if (IsLoading) { <div class="admin-loading">Loading projects…</div> }
-            else if (Projects.Count == 0) { <div class="admin-empty-state"><div class="admin-empty-icon">◇</div><h3>No projects yet</h3><p>Create a project and publish it when the case study is ready.</p><button type="button" class="admin-primary-button" @onclick="NewProject">Create first project</button></div> }
+            else if (ProjectItems.Count == 0) { <div class="admin-empty-state"><div class="admin-empty-icon">◇</div><h3>No projects yet</h3><p>Create a project and publish it when the case study is ready.</p><button type="button" class="admin-primary-button" @onclick="NewProject">Create first project</button></div> }
             else
             {
                 <div class="admin-post-list">
-                    @foreach (var project in Projects)
+                    @foreach (var project in ProjectItems)
                     {
                         <article class="admin-post-card @(Editor.Id == project.Id ? "selected" : "")">
                             @if (!string.IsNullOrWhiteSpace(project.CoverImageUrl)) { <img class="admin-project-thumb" src="@project.CoverImageUrl" alt="@project.Title" /> }
@@ -82,11 +82,11 @@
 </section>
 
 @code {
-    private List<AdminProjectDto> Projects { get; set; } = [];
+    private List<AdminProjectDto> ProjectItems { get; set; } = [];
     private AdminProjectEditDto Editor { get; set; } = new();
     private bool IsLoading = true; private bool IsSaving; private bool IsError; private string StatusMessage = string.Empty;
     protected override async Task OnInitializedAsync() => await LoadAsync();
-    private async Task LoadAsync(){ try{IsLoading=true;Projects=(await ProjectAdmin.GetAllAsync()).ToList();}catch{IsError=true;StatusMessage="Projects could not be loaded.";}finally{IsLoading=false;} }
+    private async Task LoadAsync(){ try{IsLoading=true;ProjectItems=(await ProjectAdmin.GetAllAsync()).ToList();}catch{IsError=true;StatusMessage="Projects could not be loaded.";}finally{IsLoading=false;} }
     private void NewProject(){Editor=new AdminProjectEditDto();StatusMessage=string.Empty;IsError=false;}
     private async Task EditAsync(Guid id){var p=await ProjectAdmin.GetByIdAsync(id);if(p is null)return;Editor=new AdminProjectEditDto{Id=p.Id,Title=p.Title,Slug=p.Slug,Summary=p.Summary,Description=p.Description,Technologies=p.Technologies,CoverImageUrl=p.CoverImageUrl,Problem=p.Problem,Role=p.Role,Engineering=p.Engineering,Confidentiality=p.Confidentiality,IsPublished=p.IsPublished,IsFeatured=p.IsFeatured,SortOrder=p.SortOrder};StatusMessage=string.Empty;IsError=false;}
     private async Task SaveAsync(){try{IsSaving=true;IsError=false;var id=await ProjectAdmin.SaveAsync(Editor);await LoadAsync();await EditAsync(id);StatusMessage=Editor.IsPublished?"Project saved and published successfully.":"Project saved as draft successfully.";}catch(Exception ex){IsError=true;StatusMessage=ex.Message;}finally{IsSaving=false;}}
