@@ -136,4 +136,7 @@ function boot() {
 }
 
 boot();
-document.addEventListener('enhancedload', boot);
+document.addEventListener('enhancedload', () => {
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  boot();
+});
