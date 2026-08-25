@@ -10,6 +10,9 @@ public sealed class BlogPost : Entity
     public string Content { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string[] Tags { get; set; } = [];
+    public string? CoverImageUrl { get; set; }
+    public string? SeoTitle { get; set; }
+    public string? SeoDescription { get; set; }
     public bool IsPublished { get; set; }
     public bool IsFeatured { get; set; }
     public DateTime? PublishedAtUtc { get; set; }
