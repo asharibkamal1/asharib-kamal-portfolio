@@ -1,7 +1,6 @@
-@rendermode InteractiveServer
 @inject ILeadCaptureService LeadCapture
 
-<div class="newsletter-box reveal home-newsletter-signup @(Compact ? "newsletter-compact" : string.Empty)">
+<div class="newsletter-box home-newsletter-signup @(Compact ? "newsletter-compact" : string.Empty)">
     <div class="newsletter-copy">
         <span class="section-kicker">JOIN DOTNET GURU</span>
         <h2>@(Compact ? "Get practical .NET insights." : "Practical .NET lessons in your inbox.")</h2>
