@@ -4,6 +4,9 @@
     <RootNamespace>AsharibKamal.Web</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.41.3" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\AsharibKamal.Application\AsharibKamal.Application.csproj" />
     <ProjectReference Include="..\AsharibKamal.Infrastructure\AsharibKamal.Infrastructure.csproj" />
     <ProjectReference Include="..\AsharibKamal.Shared\AsharibKamal.Shared.csproj" />
