@@ -8,6 +8,9 @@ public sealed record PublicBlogPostDto(
     string Content,
     string Category,
     IReadOnlyList<string> Tags,
+    string? CoverImageUrl,
+    string? SeoTitle,
+    string? SeoDescription,
     bool IsFeatured,
     DateTime? PublishedAtUtc,
     string ReadTime);
