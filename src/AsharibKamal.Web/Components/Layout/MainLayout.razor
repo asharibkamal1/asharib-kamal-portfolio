@@ -2,47 +2,32 @@
 
 <div class="site-shell">
     <header class="site-header professional-header" data-header>
-        <div class="header-inner page-shell professional-header-inner" data-enhance-nav="false">
-            <a class="brand professional-brand" href="/" aria-label="Asharib Kamal home">
-                <span class="brand-mark professional-brand-mark">AK</span>
-            </a>
-
+        <div class="header-inner page-shell professional-header-inner">
+            <a class="brand professional-brand" href="/" aria-label="Asharib Kamal home"><span class="brand-mark professional-brand-mark">AK</span></a>
             <nav class="desktop-nav professional-nav" aria-label="Primary navigation">
-                <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
-                <NavLink href="/about">About</NavLink>
-                <NavLink href="/experience">Experience</NavLink>
-                <NavLink href="/projects">Portfolio</NavLink>
-                <NavLink href="/blog">Blog</NavLink>
-                <NavLink href="/services">Services</NavLink>
-                <NavLink href="/contact">Contact</NavLink>
+                <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink><NavLink href="/about">About</NavLink><NavLink href="/experience">Experience</NavLink><NavLink href="/projects">Portfolio</NavLink><NavLink href="/blog">Blog</NavLink><NavLink href="/services">Services</NavLink><NavLink href="/contact">Contact</NavLink>
             </nav>
-
             <div class="header-actions">
-                <a class="header-social-link" href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer" aria-label="GitHub profile">GitHub</a>
+                <a class="header-social-link" href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer">GitHub</a>
                 <a class="button button-primary button-small header-cta" href="/contact">Let's Work Together <span>→</span></a>
+                <button class="mobile-menu-button" type="button" data-menu-button aria-label="Open navigation" aria-expanded="false">☰</button>
             </div>
         </div>
+        <nav class="mobile-menu" data-mobile-menu aria-label="Mobile navigation">
+            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink><NavLink href="/about">About</NavLink><NavLink href="/experience">Experience</NavLink><NavLink href="/projects">Portfolio</NavLink><NavLink href="/blog">Blog</NavLink><NavLink href="/services">Services</NavLink><NavLink href="/resources">Resources</NavLink><NavLink href="/products">Products</NavLink><NavLink href="/resume">Resume</NavLink><NavLink href="/contact">Contact</NavLink>
+        </nav>
     </header>
 
     <main>@Body</main>
 
     <footer class="site-footer">
-        <div class="page-shell footer-grid" data-enhance-nav="false">
-            <div>
-                <p class="brand footer-brand"><span class="brand-mark">AK</span><span class="brand-copy"><strong>Asharib Kamal</strong><small>.NET & Backend Engineer</small></span></p>
-                <p>Building reliable backend systems, enterprise applications and useful software products.</p>
-            </div>
-            <div class="footer-links">
-                <strong>Quick links</strong>
-                <a href="/about">About</a><a href="/experience">Experience</a><a href="/projects">Portfolio</a><a href="/blog">Blog</a>
-            </div>
-            <div class="footer-links">
-                <strong>Connect</strong>
-                <a href="https://www.linkedin.com/in/asharibkamal/" target="_blank" rel="noreferrer">LinkedIn</a>
-                <a href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer">GitHub</a>
-                <a href="mailto:asharibkamal1@gmail.com">Email</a>
-            </div>
+        <div class="page-shell footer-grid">
+            <div><p class="brand footer-brand"><span class="brand-mark">AK</span><span class="brand-copy"><strong>Asharib Kamal</strong><small>.NET & Backend Engineer</small></span></p><p>Building reliable backend systems, enterprise applications and useful software products.</p></div>
+            <div class="footer-links"><strong>Explore</strong><a href="/about">About</a><a href="/experience">Experience</a><a href="/projects">Portfolio</a><a href="/blog">Blog</a></div>
+            <div class="footer-links"><strong>Business</strong><a href="/services">Services</a><a href="/mentoring">Mentoring</a><a href="/resources">Resources</a><a href="/products">Products</a></div>
+            <div class="footer-links footer-newsletter"><strong>Stay connected</strong><a href="https://www.linkedin.com/in/asharibkamal/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer">GitHub</a><a href="/newsletter">DotNet Guru →</a></div>
         </div>
         <div class="page-shell footer-bottom">© @DateTime.UtcNow.Year Asharib Kamal. Built with .NET and Blazor.</div>
     </footer>
+    <button class="back-to-top" type="button" data-back-top aria-label="Back to top">↑</button>
 </div>
