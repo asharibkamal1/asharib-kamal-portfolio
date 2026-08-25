@@ -1,22 +1,81 @@
 @page "/contact"
-<PageTitle>Contact — Asharib Kamal</PageTitle>
+@rendermode InteractiveServer
+@inject ILeadCaptureService LeadCapture
 
-<section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">CONTACT</span><h1>Let's work together.</h1><p>Have a project, opportunity or collaboration in mind? I'd love to hear about it.</p></div></section>
+<PageTitle>Contact — Asharib Kamal</PageTitle>
+<HeadContent>
+    <meta name="description" content="Contact Asharib Kamal for .NET development, backend engineering, API development, consulting and software projects." />
+</HeadContent>
+
+<section class="screen-hero"><div class="page-shell screen-hero-inner"><span class="section-kicker">CONTACT</span><h1>Let's work together.</h1><p>Have a project, opportunity or collaboration in mind? Send the details and I'll get back to you.</p></div></section>
 
 <section class="screen-body page-shell">
     <div class="contact-layout">
         <aside class="contact-panel reveal">
-            <span class="section-kicker">GET IN TOUCH</span><h2 style="margin:10px 0 12px">Have a project in mind?</h2><p>Send me the details and I'll get back to you. You can also reach me directly through email or LinkedIn.</p>
+            <span class="section-kicker">GET IN TOUCH</span><h2 style="margin:10px 0 12px">Have a project in mind?</h2><p>I can help with .NET applications, backend APIs, architecture, modernization and production engineering.</p>
             <div class="contact-links"><a href="mailto:asharibkamal1@gmail.com">Email · asharibkamal1@gmail.com</a><a href="https://www.linkedin.com/in/asharibkamal/" target="_blank" rel="noreferrer">LinkedIn · Asharib Kamal ↗</a><a href="https://github.com/asharibkamal1" target="_blank" rel="noreferrer">GitHub · asharibkamal1 ↗</a><span>Location · Islamabad, Pakistan</span></div>
         </aside>
         <div class="contact-form reveal" data-delay="80">
-            <div class="form-grid">
-                <div class="field"><label for="name">Your Name</label><input id="name" placeholder="Your name" /></div>
-                <div class="field"><label for="email">Your Email</label><input id="email" type="email" placeholder="you@company.com" /></div>
-                <div class="field full"><label for="subject">Subject</label><input id="subject" placeholder="Project or opportunity" /></div>
-                <div class="field full"><label for="message">Your Message</label><textarea id="message" placeholder="Tell me a little about what you're working on..."></textarea></div>
-                <div class="field full"><a class="button button-primary" href="mailto:asharibkamal1@gmail.com">Send Message</a></div>
-            </div>
+            <form @onsubmit="SubmitAsync" @onsubmit:preventDefault>
+                <div class="form-grid">
+                    <div class="field"><label for="name">Your Name</label><input id="name" @bind="Name" maxlength="120" placeholder="Your name" /></div>
+                    <div class="field"><label for="email">Your Email</label><input id="email" type="email" @bind="Email" maxlength="320" placeholder="you@company.com" /></div>
+                    <div class="field full"><label for="company">Company <span class="optional">Optional</span></label><input id="company" @bind="Company" maxlength="160" placeholder="Company or organization" /></div>
+                    <div class="field full"><label for="subject">Subject</label><input id="subject" @bind="Subject" maxlength="180" placeholder="Project or opportunity" /></div>
+                    <div class="field full"><label for="message">Your Message</label><textarea id="message" @bind="Message" maxlength="3000" placeholder="Tell me a little about what you're working on..."></textarea></div>
+                    @if (!string.IsNullOrWhiteSpace(StatusMessage))
+                    {
+                        <div class="field full"><div class="form-status @(IsSuccess ? "success" : "error")">@StatusMessage</div></div>
+                    }
+                    <div class="field full"><button class="button button-primary" type="submit" disabled="@IsSubmitting">@(IsSubmitting ? "Sending..." : "Send Message →")</button></div>
+                </div>
+            </form>
         </div>
     </div>
 </section>
+
+@code {
+    private string Name { get; set; } = string.Empty;
+    private string Email { get; set; } = string.Empty;
+    private string Company { get; set; } = string.Empty;
+    private string Subject { get; set; } = string.Empty;
+    private string Message { get; set; } = string.Empty;
+    private string StatusMessage { get; set; } = string.Empty;
+    private bool IsSuccess { get; set; }
+    private bool IsSubmitting { get; set; }
+
+    private async Task SubmitAsync()
+    {
+        StatusMessage = string.Empty;
+        IsSuccess = false;
+
+        if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Subject) || string.IsNullOrWhiteSpace(Message))
+        {
+            StatusMessage = "Please complete your name, email, subject and message.";
+            return;
+        }
+
+        if (!Email.Contains('@') || Email.Length < 5)
+        {
+            StatusMessage = "Please enter a valid email address.";
+            return;
+        }
+
+        try
+        {
+            IsSubmitting = true;
+            await LeadCapture.CaptureContactAsync(new ContactLeadRequest(Name, Email, Company, Subject, Message));
+            IsSuccess = true;
+            StatusMessage = "Thanks. Your message has been received successfully.";
+            Name = Email = Company = Subject = Message = string.Empty;
+        }
+        catch
+        {
+            StatusMessage = "I couldn't save your message right now. Please email me directly at asharibkamal1@gmail.com.";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}
