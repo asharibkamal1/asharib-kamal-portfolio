@@ -1,10 +1,10 @@
 /* Hero profile image fit and positioning */
 .portfolio-profile{
-    min-height:470px;
+    min-height:450px;
     display:grid;
     place-items:center;
     position:relative;
-    transform:translateY(-28px);
+    transform:translateY(-58px);
 }
 .profile-photo-frame{
     width:300px;
@@ -31,16 +31,20 @@
     display:block;
     transform:scale(.98);
 }
-.profile-network{width:440px;height:440px}
-.profile-caption{bottom:18px}
+.profile-network{
+    width:430px;
+    height:430px;
+    transform:translateY(-10px);
+}
+.profile-caption{bottom:28px}
 @media(max-width:900px){
-    .portfolio-profile{min-height:430px;transform:translateY(-18px)}
+    .portfolio-profile{min-height:410px;transform:translateY(-42px)}
     .profile-photo-frame{width:270px}
-    .profile-network{width:390px;height:390px}
+    .profile-network{width:380px;height:380px;transform:translateY(-8px)}
 }
 @media(max-width:640px){
-    .portfolio-profile{min-height:350px;transform:translateY(-14px)}
+    .portfolio-profile{min-height:330px;transform:translateY(-30px)}
     .profile-photo-frame{width:220px;padding:8px}
-    .profile-network{width:315px;height:315px}
-    .profile-caption{bottom:0}
+    .profile-network{width:305px;height:305px;transform:translateY(-6px)}
+    .profile-caption{bottom:10px}
 }
