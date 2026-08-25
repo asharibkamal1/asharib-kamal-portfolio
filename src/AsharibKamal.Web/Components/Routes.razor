@@ -1,6 +1,17 @@
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+            <NotAuthorized>
+                <LayoutView Layout="typeof(MainLayout)">
+                    <section class="page-shell simple-page">
+                        <p class="eyebrow">ADMIN</p>
+                        <h1>Sign in required.</h1>
+                        <p class="lede">This area is private and available only to the portfolio administrator.</p>
+                        <a class="button button-primary" href="/admin/login">Go to admin login</a>
+                    </section>
+                </LayoutView>
+            </NotAuthorized>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
     <NotFound>
