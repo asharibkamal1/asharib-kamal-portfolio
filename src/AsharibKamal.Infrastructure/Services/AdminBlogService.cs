@@ -15,7 +15,8 @@ public sealed class AdminBlogService(IDbContextFactory<PortfolioDbContext> dbFac
             .OrderByDescending(x => x.PublishedAtUtc)
             .ThenBy(x => x.Title)
             .Select(x => new AdminBlogPostDto(x.Id, x.Title, x.Slug, x.Summary, x.Content, x.Category,
-                string.Join(", ", x.Tags), x.IsPublished, x.IsFeatured, x.PublishedAtUtc))
+                string.Join(", ", x.Tags), x.CoverImageUrl, x.SeoTitle, x.SeoDescription,
+                x.IsPublished, x.IsFeatured, x.PublishedAtUtc))
             .ToListAsync(cancellationToken);
     }
 
@@ -24,7 +25,8 @@ public sealed class AdminBlogService(IDbContextFactory<PortfolioDbContext> dbFac
         await using var db = await dbFactory.CreateDbContextAsync(cancellationToken);
         var post = await db.BlogPosts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         return post is null ? null : new AdminBlogPostDto(post.Id, post.Title, post.Slug, post.Summary, post.Content,
-            post.Category, string.Join(", ", post.Tags), post.IsPublished, post.IsFeatured, post.PublishedAtUtc);
+            post.Category, string.Join(", ", post.Tags), post.CoverImageUrl, post.SeoTitle, post.SeoDescription,
+            post.IsPublished, post.IsFeatured, post.PublishedAtUtc);
     }
 
     public async Task<Guid> SaveAsync(AdminBlogPostEditDto model, CancellationToken cancellationToken = default)
@@ -52,6 +54,9 @@ public sealed class AdminBlogService(IDbContextFactory<PortfolioDbContext> dbFac
         post.Content = model.Content.Trim();
         post.Category = model.Category.Trim();
         post.Tags = model.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        post.CoverImageUrl = string.IsNullOrWhiteSpace(model.CoverImageUrl) ? null : model.CoverImageUrl.Trim();
+        post.SeoTitle = string.IsNullOrWhiteSpace(model.SeoTitle) ? null : model.SeoTitle.Trim();
+        post.SeoDescription = string.IsNullOrWhiteSpace(model.SeoDescription) ? null : model.SeoDescription.Trim();
         post.IsFeatured = model.IsFeatured;
         if (model.IsPublished && !post.IsPublished) post.PublishedAtUtc = DateTime.UtcNow;
         if (!model.IsPublished) post.PublishedAtUtc = null;
