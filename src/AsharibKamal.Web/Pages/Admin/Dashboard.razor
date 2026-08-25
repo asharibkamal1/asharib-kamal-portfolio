@@ -8,22 +8,22 @@
 <PageTitle>Admin Dashboard — Asharib Kamal</PageTitle>
 <HeadContent><meta name="robots" content="noindex,nofollow" /></HeadContent>
 
-<section class="admin-page">
-    <header class="admin-page-header">
+<section class="admin-dashboard-v2">
+    <header class="admin-dashboard-hero">
         <div>
-            <p class="admin-kicker">OVERVIEW</p>
-            <h1>Dashboard</h1>
-            <p>Monitor your portfolio content, audience growth and incoming opportunities.</p>
+            <div class="admin-dashboard-eyebrow"><span></span> PORTFOLIO COMMAND CENTER</div>
+            <h1>Good to see you, Asharib.</h1>
+            <p>Here’s what is happening across your portfolio, audience and inbound opportunities.</p>
         </div>
-        <div class="admin-page-actions">
-            <a class="admin-secondary-button" href="/" target="_blank">View website ↗</a>
-            <a class="admin-primary-button" href="/admin/blog">Create article <span>→</span></a>
+        <div class="admin-dashboard-hero-actions">
+            <a class="admin-soft-button" href="/admin/analytics">View analytics</a>
+            <a class="admin-primary-action" href="/admin/blog">+ Create article</a>
         </div>
     </header>
 
     @if (IsLoading)
     {
-        <div class="admin-loading">Loading dashboard…</div>
+        <div class="admin-loading admin-dashboard-loading">Loading your workspace…</div>
     }
     else if (!string.IsNullOrWhiteSpace(ErrorMessage))
     {
@@ -31,72 +31,114 @@
     }
     else if (DashboardData is not null)
     {
-        <div class="admin-stat-grid">
-            <article class="admin-stat-card"><span>Subscribers</span><strong>@DashboardData.TotalSubscribers</strong><small>@DashboardData.ActiveSubscribers active subscribers</small></article>
-            <article class="admin-stat-card"><span>New leads</span><strong>@DashboardData.NewContactMessages</strong><small>Unread website enquiries</small></article>
-            <article class="admin-stat-card"><span>Total messages</span><strong>@DashboardData.TotalContactMessages</strong><small>All contact submissions</small></article>
-            <article class="admin-stat-card accent"><span>Website status</span><strong>Live</strong><small>Lead capture is active</small></article>
+        <div class="admin-kpi-grid-v2">
+            <article class="admin-kpi-card kpi-blue">
+                <div class="admin-kpi-top"><span class="admin-kpi-icon">◎</span><span class="admin-kpi-trend positive">Audience</span></div>
+                <span class="admin-kpi-label">Total subscribers</span>
+                <strong>@DashboardData.TotalSubscribers</strong>
+                <div class="admin-kpi-footer"><span>@DashboardData.ActiveSubscribers active</span><span>@ActiveRate% active rate</span></div>
+            </article>
+            <article class="admin-kpi-card kpi-purple">
+                <div class="admin-kpi-top"><span class="admin-kpi-icon">✦</span><span class="admin-kpi-trend">Inbox</span></div>
+                <span class="admin-kpi-label">New contact leads</span>
+                <strong>@DashboardData.NewContactMessages</strong>
+                <div class="admin-kpi-footer"><span>Needs attention</span><span>@DashboardData.TotalContactMessages total</span></div>
+            </article>
+            <article class="admin-kpi-card kpi-cyan">
+                <div class="admin-kpi-top"><span class="admin-kpi-icon">↗</span><span class="admin-kpi-trend positive">7 days</span></div>
+                <span class="admin-kpi-label">Recent activity</span>
+                <strong>@WeeklyActivity</strong>
+                <div class="admin-kpi-footer"><span>Subscribers + leads</span><span>Last week</span></div>
+            </article>
+            <article class="admin-kpi-card kpi-orange">
+                <div class="admin-kpi-top"><span class="admin-kpi-icon">◆</span><span class="admin-kpi-trend">Growth</span></div>
+                <span class="admin-kpi-label">Conversion engine</span>
+                <strong>Live</strong>
+                <div class="admin-kpi-footer"><span>Forms operational</span><span class="admin-live-state">● Online</span></div>
+            </article>
         </div>
 
-        <div class="admin-dashboard-grid">
-            <section class="admin-panel">
-                <div class="admin-panel-head"><div><span>CONTACT LEADS</span><h2>Recent messages</h2></div><a href="/admin/leads" class="admin-panel-link">View all →</a></div>
+        <div class="admin-dashboard-chart-grid">
+            <section class="admin-dashboard-card admin-activity-card">
+                <div class="admin-dashboard-card-head">
+                    <div><span class="admin-card-kicker">AUDIENCE & LEADS</span><h2>Activity overview</h2><p>New subscribers and contact enquiries over the last 7 days.</p></div>
+                    <div class="admin-chart-legend"><span><i class="legend-subscriber"></i>Subscribers</span><span><i class="legend-lead"></i>Leads</span></div>
+                </div>
+                <div class="admin-bar-chart" aria-label="Seven day subscriber and lead activity chart">
+                    @foreach (var day in DashboardData.ActivityLast7Days)
+                    {
+                        <div class="admin-chart-day">
+                            <div class="admin-chart-bars">
+                                <span class="admin-chart-bar subscriber" style="height:@GetBarHeight(day.Subscribers)%" title="@day.Subscribers subscriber(s)"></span>
+                                <span class="admin-chart-bar lead" style="height:@GetBarHeight(day.Leads)%" title="@day.Leads lead(s)"></span>
+                            </div>
+                            <span class="admin-chart-label">@day.Date.ToString("ddd")</span>
+                        </div>
+                    }
+                </div>
+                <div class="admin-chart-summary">
+                    <div><strong>@DashboardData.ActivityLast7Days.Sum(x => x.Subscribers)</strong><span>New subscribers</span></div>
+                    <div><strong>@DashboardData.ActivityLast7Days.Sum(x => x.Leads)</strong><span>New leads</span></div>
+                    <div><strong>@WeeklyActivity</strong><span>Total actions</span></div>
+                </div>
+            </section>
+
+            <section class="admin-dashboard-card admin-audience-card">
+                <div class="admin-dashboard-card-head compact"><div><span class="admin-card-kicker">AUDIENCE HEALTH</span><h2>Subscriber status</h2></div></div>
+                <div class="admin-donut-wrap">
+                    <div class="admin-donut" style="--active:@ActiveRate"><div><strong>@ActiveRate%</strong><span>Active</span></div></div>
+                </div>
+                <div class="admin-audience-breakdown">
+                    <div><span><i class="audience-dot active"></i>Active subscribers</span><strong>@DashboardData.ActiveSubscribers</strong></div>
+                    <div><span><i class="audience-dot inactive"></i>Inactive subscribers</span><strong>@(DashboardData.TotalSubscribers - DashboardData.ActiveSubscribers)</strong></div>
+                </div>
+                <a href="/admin/subscribers" class="admin-card-link">Manage subscribers <span>→</span></a>
+            </section>
+        </div>
+
+        <div class="admin-dashboard-bottom-grid">
+            <section class="admin-dashboard-card">
+                <div class="admin-dashboard-card-head compact"><div><span class="admin-card-kicker">RECENT ENQUIRIES</span><h2>Contact leads</h2></div><a href="/admin/leads" class="admin-card-link-inline">View all</a></div>
                 @if (DashboardData.RecentMessages.Count == 0)
                 {
                     <div class="admin-empty">No contact messages yet.</div>
                 }
                 else
                 {
-                    <div class="admin-list">
-                        @foreach (var message in DashboardData.RecentMessages)
+                    <div class="admin-modern-list">
+                        @foreach (var message in DashboardData.RecentMessages.Take(5))
                         {
-                            <article class="admin-message-row @(message.Status == "New" ? "is-new" : "")">
-                                <div class="admin-row-main">
-                                    <div class="admin-avatar">@message.Name.FirstOrDefault().ToString().ToUpperInvariant()</div>
-                                    <div><strong>@message.Name</strong><span>@message.Email</span><p>@message.Subject</p></div>
-                                </div>
-                                <div class="admin-row-actions">
-                                    <span class="admin-date">@message.CreatedAtUtc.ToLocalTime().ToString("dd MMM")</span>
-                                    @if (message.Status == "New")
-                                    {
-                                        <button class="admin-text-button" @onclick="() => MarkReadAsync(message.Id)">Mark read</button>
-                                    }
-                                    else
-                                    {
-                                        <span class="admin-status">Read</span>
-                                    }
-                                </div>
+                            <article class="admin-modern-row">
+                                <div class="admin-modern-avatar">@message.Name.FirstOrDefault().ToString().ToUpperInvariant()</div>
+                                <div class="admin-modern-main"><strong>@message.Name</strong><span>@message.Email</span><p>@message.Subject</p></div>
+                                <div class="admin-modern-actions"><span class="admin-date">@message.CreatedAtUtc.ToLocalTime().ToString("dd MMM")</span>@if (message.Status == "New") { <button class="admin-status-pill new" @onclick="() => MarkReadAsync(message.Id)">New</button> } else { <span class="admin-status-pill read">Read</span> }</div>
                             </article>
                         }
                     </div>
                 }
             </section>
 
-            <section class="admin-panel">
-                <div class="admin-panel-head"><div><span>AUDIENCE</span><h2>Recent subscribers</h2></div><a href="/admin/subscribers" class="admin-panel-link">View all →</a></div>
+            <section class="admin-dashboard-card">
+                <div class="admin-dashboard-card-head compact"><div><span class="admin-card-kicker">LATEST AUDIENCE</span><h2>Recent subscribers</h2></div><a href="/admin/subscribers" class="admin-card-link-inline">View all</a></div>
                 @if (DashboardData.RecentSubscribers.Count == 0)
                 {
                     <div class="admin-empty">No subscribers yet.</div>
                 }
                 else
                 {
-                    <div class="admin-list">
-                        @foreach (var subscriber in DashboardData.RecentSubscribers)
+                    <div class="admin-modern-list">
+                        @foreach (var subscriber in DashboardData.RecentSubscribers.Take(5))
                         {
-                            <article class="admin-subscriber-row">
-                                <div><strong>@subscriber.Email</strong><span>@subscriber.Source · @subscriber.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</span></div>
-                                <button class="admin-toggle @(subscriber.IsActive ? "active" : "")" @onclick="() => ToggleSubscriberAsync(subscriber.Id, !subscriber.IsActive)">@(subscriber.IsActive ? "Active" : "Inactive")</button>
+                            <article class="admin-modern-row subscriber-row">
+                                <div class="admin-modern-avatar subscriber">@@</div>
+                                <div class="admin-modern-main"><strong>@subscriber.Email</strong><span>@subscriber.Source</span></div>
+                                <div class="admin-modern-actions"><span class="admin-date">@subscriber.CreatedAtUtc.ToLocalTime().ToString("dd MMM")</span><button class="admin-status-pill @(subscriber.IsActive ? "active" : "inactive")" @onclick="() => ToggleSubscriberAsync(subscriber.Id, !subscriber.IsActive)">@(subscriber.IsActive ? "Active" : "Inactive")</button></div>
                             </article>
                         }
                     </div>
                 }
             </section>
         </div>
-
-        <section class="admin-next-panel">
-            <div><span class="admin-kicker">CMS WORKSPACE</span><h2>Manage your portfolio from one control center.</h2><p>Blog management is active. Projects, subscriber management, leads, analytics and settings are available from the admin navigation as we complete each module.</p></div>
-            <div class="admin-module-pills"><span>Blog CMS</span><span>Projects</span><span>Subscribers</span><span>Analytics</span></div>
-        </section>
     }
 </section>
 
@@ -104,6 +146,14 @@
     private AdminDashboardDto? DashboardData { get; set; }
     private bool IsLoading { get; set; } = true;
     private string ErrorMessage { get; set; } = string.Empty;
+
+    private int ActiveRate => DashboardData is null || DashboardData.TotalSubscribers == 0
+        ? 0
+        : (int)Math.Round(DashboardData.ActiveSubscribers * 100d / DashboardData.TotalSubscribers);
+
+    private int WeeklyActivity => DashboardData?.ActivityLast7Days.Sum(x => x.Subscribers + x.Leads) ?? 0;
+    private int MaxDailyActivity => Math.Max(1, DashboardData?.ActivityLast7Days.SelectMany(x => new[] { x.Subscribers, x.Leads }).DefaultIfEmpty(0).Max() ?? 1);
+    private int GetBarHeight(int value) => value == 0 ? 4 : Math.Max(10, (int)Math.Round(value * 100d / MaxDailyActivity));
 
     protected override async Task OnInitializedAsync() => await ReloadAsync();
 
