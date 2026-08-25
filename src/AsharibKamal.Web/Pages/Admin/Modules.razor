@@ -1,4 +1,3 @@
-@page "/admin/projects"
 @page "/admin/subscribers"
 @page "/admin/leads"
 @page "/admin/analytics"
@@ -14,53 +13,15 @@
 
 <section class="admin-page">
     <header class="admin-page-header">
-        <div>
-            <p class="admin-kicker">@Kicker</p>
-            <h1>@Title</h1>
-            <p>@Description</p>
-        </div>
-        <div class="admin-page-actions">
-            <a class="admin-secondary-button" href="/admin">Back to dashboard</a>
-        </div>
+        <div><p class="admin-kicker">@Kicker</p><h1>@Title</h1><p>@Description</p></div>
+        <div class="admin-page-actions"><a class="admin-secondary-button" href="/admin">Back to dashboard</a></div>
     </header>
-
-    <section class="admin-next-panel">
-        <div>
-            <span class="admin-kicker">MODULE ROADMAP</span>
-            <h2>@Title is next in development.</h2>
-            <p>The navigation is already in place so the admin experience stays consistent while each CMS module is completed.</p>
-        </div>
-        <div class="admin-module-pills"><span>Secure</span><span>Database-backed</span><span>Responsive</span><span>Admin only</span></div>
-    </section>
+    <section class="admin-next-panel"><div><span class="admin-kicker">MODULE ROADMAP</span><h2>@Title is next in development.</h2><p>This module is already routed inside the private admin workspace and will be connected to the portfolio database in the next pass.</p></div><div class="admin-module-pills"><span>Secure</span><span>Database-backed</span><span>Responsive</span><span>Admin only</span></div></section>
 </section>
 
 @code {
     private string CurrentPath => new Uri(Navigation.Uri).AbsolutePath.ToLowerInvariant();
-    private string Title => CurrentPath switch
-    {
-        "/admin/projects" => "Projects",
-        "/admin/subscribers" => "Subscribers",
-        "/admin/leads" => "Contact leads",
-        "/admin/analytics" => "Analytics",
-        "/admin/settings" => "Settings",
-        _ => "Admin module"
-    };
-    private string Kicker => CurrentPath switch
-    {
-        "/admin/projects" => "CONTENT / PROJECTS",
-        "/admin/subscribers" => "AUDIENCE / SUBSCRIBERS",
-        "/admin/leads" => "AUDIENCE / LEADS",
-        "/admin/analytics" => "INSIGHTS / ANALYTICS",
-        "/admin/settings" => "SYSTEM / SETTINGS",
-        _ => "ADMIN"
-    };
-    private string Description => CurrentPath switch
-    {
-        "/admin/projects" => "Manage portfolio case studies, technologies, project status and featured work.",
-        "/admin/subscribers" => "Review newsletter subscribers, status, signup source and audience growth.",
-        "/admin/leads" => "Manage website enquiries and track potential client opportunities.",
-        "/admin/analytics" => "Understand portfolio traffic, content performance and conversion activity.",
-        "/admin/settings" => "Manage portfolio CMS preferences and administrative configuration.",
-        _ => "Portfolio administration module."
-    };
+    private string Title => CurrentPath switch { "/admin/subscribers" => "Subscribers", "/admin/leads" => "Contact leads", "/admin/analytics" => "Analytics", "/admin/settings" => "Settings", _ => "Admin module" };
+    private string Kicker => CurrentPath switch { "/admin/subscribers" => "AUDIENCE / SUBSCRIBERS", "/admin/leads" => "AUDIENCE / LEADS", "/admin/analytics" => "INSIGHTS / ANALYTICS", "/admin/settings" => "SYSTEM / SETTINGS", _ => "ADMIN" };
+    private string Description => CurrentPath switch { "/admin/subscribers" => "Review newsletter subscribers, status, signup source and audience growth.", "/admin/leads" => "Manage website enquiries and track potential client opportunities.", "/admin/analytics" => "Understand portfolio traffic, content performance and conversion activity.", "/admin/settings" => "Manage portfolio CMS preferences and administrative configuration.", _ => "Portfolio administration module." };
 }
