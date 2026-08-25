@@ -22,6 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IAdminDashboardService, AdminDashboardService>();
         services.AddScoped<IAdminBlogService, AdminBlogService>();
         services.AddScoped<IPublicBlogService, PublicBlogService>();
+        services.AddScoped<IAdminProjectService, AdminProjectService>();
+        services.AddScoped<IPublicProjectService, PublicProjectService>();
 
         return services;
     }
