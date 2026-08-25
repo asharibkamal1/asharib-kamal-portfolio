@@ -1,3 +1,14 @@
+import './scroll-motion.js';
+
+const scrollMotionStyleId = 'scroll-motion-style';
+if (!document.getElementById(scrollMotionStyleId)) {
+  const link = document.createElement('link');
+  link.id = scrollMotionStyleId;
+  link.rel = 'stylesheet';
+  link.href = '/css/scroll-motion.css';
+  document.head.appendChild(link);
+}
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let journeyObserver;
 
