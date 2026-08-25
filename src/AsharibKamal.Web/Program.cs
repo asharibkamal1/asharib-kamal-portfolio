@@ -56,7 +56,7 @@ app.UseAuthorization();
 app.UseAntiforgery();
 app.UseOutputCache();
 
-app.MapPost("/admin/login", async (HttpContext context, IConfiguration configuration) =>
+app.MapPost("/admin/auth/login", async (HttpContext context, IConfiguration configuration) =>
 {
     var form = await context.Request.ReadFormAsync();
     var email = form["email"].ToString().Trim();
