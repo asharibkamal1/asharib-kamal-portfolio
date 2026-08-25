@@ -1,0 +1,118 @@
+@page "/admin/blog"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IAdminBlogService BlogAdmin
+
+<PageTitle>Blog CMS — Asharib Kamal Admin</PageTitle>
+<HeadContent><meta name="robots" content="noindex,nofollow" /></HeadContent>
+
+<section class="admin-shell page-shell">
+    <header class="admin-topbar">
+        <div><p class="admin-kicker">CONTENT MANAGEMENT</p><h1>Blog CMS</h1><p>Create, edit, publish and manage your portfolio articles.</p></div>
+        <div class="admin-top-actions"><a class="button button-ghost" href="/admin">Dashboard</a><button class="button button-primary" @onclick="NewPost">+ New article</button></div>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(StatusMessage)) { <div class="admin-alert @(IsError ? "error" : "success")">@StatusMessage</div> }
+
+    <div class="admin-grid">
+        <section class="admin-panel">
+            <div class="admin-panel-head"><div><span>ARTICLES</span><h2>All blog posts</h2></div><span class="admin-count">@Posts.Count total</span></div>
+            @if (IsLoading) { <div class="admin-loading">Loading articles…</div> }
+            else if (Posts.Count == 0) { <div class="admin-empty">No articles yet. Create your first post.</div> }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var post in Posts)
+                    {
+                        <article class="admin-subscriber-row">
+                            <div><strong>@post.Title</strong><span>@post.Category · /blog/@post.Slug</span><small>@(post.IsPublished ? "Published" : "Draft") @(post.IsFeatured ? "· Featured" : "")</small></div>
+                            <div class="admin-row-actions">
+                                <button class="admin-text-button" @onclick="() => EditAsync(post.Id)">Edit</button>
+                                <button class="admin-toggle @(post.IsPublished ? "active" : "")" @onclick="() => TogglePublishAsync(post)">@(post.IsPublished ? "Published" : "Draft")</button>
+                                <button class="admin-text-button" @onclick="() => DeleteAsync(post.Id)">Delete</button>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="admin-panel">
+            <div class="admin-panel-head"><div><span>EDITOR</span><h2>@(Editor.Id.HasValue ? "Edit article" : "New article")</h2></div></div>
+            <EditForm Model="Editor" OnValidSubmit="SaveAsync" FormName="admin-blog-editor">
+                <DataAnnotationsValidator />
+                <div class="form-grid">
+                    <div class="field full"><label>Title</label><InputText @bind-Value="Editor.Title" /><ValidationMessage For="() => Editor.Title" /></div>
+                    <div class="field"><label>Slug</label><InputText @bind-Value="Editor.Slug" /></div>
+                    <div class="field"><label>Category</label><InputText @bind-Value="Editor.Category" /></div>
+                    <div class="field full"><label>Summary</label><InputTextArea @bind-Value="Editor.Summary" /></div>
+                    <div class="field full"><label>Content</label><InputTextArea @bind-Value="Editor.Content" style="min-height:260px" /></div>
+                    <div class="field full"><label>Tags (comma separated)</label><InputText @bind-Value="Editor.Tags" /></div>
+                    <div class="field"><label><InputCheckbox @bind-Value="Editor.IsPublished" /> Publish article</label></div>
+                    <div class="field"><label><InputCheckbox @bind-Value="Editor.IsFeatured" /> Featured article</label></div>
+                    <div class="field full"><button class="button button-primary" type="submit" disabled="@IsSaving">@(IsSaving ? "Saving…" : "Save article")</button></div>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</section>
+
+@code {
+    private List<AdminBlogPostDto> Posts { get; set; } = [];
+    private AdminBlogPostEditDto Editor { get; set; } = new();
+    private bool IsLoading = true;
+    private bool IsSaving;
+    private bool IsError;
+    private string StatusMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        IsLoading = true;
+        Posts = (await BlogAdmin.GetAllAsync()).ToList();
+        IsLoading = false;
+    }
+
+    private void NewPost()
+    {
+        Editor = new AdminBlogPostEditDto();
+        StatusMessage = string.Empty;
+    }
+
+    private async Task EditAsync(Guid id)
+    {
+        var post = await BlogAdmin.GetByIdAsync(id);
+        if (post is null) return;
+        Editor = new AdminBlogPostEditDto { Id = post.Id, Title = post.Title, Slug = post.Slug, Summary = post.Summary, Content = post.Content, Category = post.Category, Tags = post.Tags, IsPublished = post.IsPublished, IsFeatured = post.IsFeatured };
+    }
+
+    private async Task SaveAsync()
+    {
+        try
+        {
+            IsSaving = true; IsError = false;
+            var id = await BlogAdmin.SaveAsync(Editor);
+            StatusMessage = "Article saved successfully.";
+            await LoadAsync();
+            await EditAsync(id);
+        }
+        catch (Exception ex) { IsError = true; StatusMessage = ex.Message; }
+        finally { IsSaving = false; }
+    }
+
+    private async Task TogglePublishAsync(AdminBlogPostDto post)
+    {
+        await BlogAdmin.SetPublishedAsync(post.Id, !post.IsPublished);
+        await LoadAsync();
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        await BlogAdmin.DeleteAsync(id);
+        if (Editor.Id == id) NewPost();
+        await LoadAsync();
+        StatusMessage = "Article deleted.";
+    }
+}
