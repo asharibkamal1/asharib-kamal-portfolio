@@ -1,0 +1,96 @@
+@page "/admin/projects"
+@rendermode InteractiveServer
+@layout AdminLayout
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@attribute [Authorize]
+@inject IAdminProjectService ProjectAdmin
+@inject IWebHostEnvironment Environment
+
+<PageTitle>Projects CMS — Asharib Kamal Admin</PageTitle>
+<HeadContent><meta name="robots" content="noindex,nofollow" /></HeadContent>
+
+<section class="admin-page admin-projects-page">
+    <header class="admin-page-header">
+        <div><p class="admin-kicker">CONTENT / PROJECTS</p><h1>Projects management</h1><p>Create, organize and publish professional portfolio case studies.</p></div>
+        <div class="admin-page-actions"><a class="admin-secondary-button" href="/projects" target="_blank">View public portfolio ↗</a><button class="admin-primary-button" type="button" @onclick="NewProject">+ New project</button></div>
+    </header>
+
+    <div class="admin-blog-stats">
+        <div><span>All projects</span><strong>@Projects.Count</strong></div>
+        <div><span>Published</span><strong>@Projects.Count(x => x.IsPublished)</strong></div>
+        <div><span>Drafts</span><strong>@Projects.Count(x => !x.IsPublished)</strong></div>
+        <div><span>Featured</span><strong>@Projects.Count(x => x.IsFeatured)</strong></div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(StatusMessage)) { <div class="admin-alert @(IsError ? "error" : "success")">@StatusMessage</div> }
+
+    <div class="admin-blog-workspace">
+        <section class="admin-panel admin-post-library">
+            <div class="admin-panel-head"><div><span>PROJECT LIBRARY</span><h2>Case studies</h2></div><span class="admin-count">@Projects.Count total</span></div>
+            @if (IsLoading) { <div class="admin-loading">Loading projects…</div> }
+            else if (Projects.Count == 0) { <div class="admin-empty-state"><div class="admin-empty-icon">◇</div><h3>No projects yet</h3><p>Create a project and publish it when the case study is ready.</p><button type="button" class="admin-primary-button" @onclick="NewProject">Create first project</button></div> }
+            else
+            {
+                <div class="admin-post-list">
+                    @foreach (var project in Projects)
+                    {
+                        <article class="admin-post-card @(Editor.Id == project.Id ? "selected" : "")">
+                            @if (!string.IsNullOrWhiteSpace(project.CoverImageUrl)) { <img class="admin-project-thumb" src="@project.CoverImageUrl" alt="@project.Title" /> }
+                            <button type="button" class="admin-post-main" @onclick="() => EditAsync(project.Id)">
+                                <div class="admin-post-icon">@project.Title.FirstOrDefault().ToString().ToUpperInvariant()</div>
+                                <div class="admin-post-copy"><div class="admin-post-title-row"><strong>@project.Title</strong>@if(project.IsFeatured){<span class="admin-featured-badge">Featured</span>}</div><span>/projects/@project.Slug · Order @project.SortOrder</span><p>@project.Summary</p></div>
+                            </button>
+                            <div class="admin-post-footer"><span class="admin-publish-state @(project.IsPublished ? "published" : "draft")">@(project.IsPublished ? "Published" : "Draft")</span><div class="admin-post-actions"><button class="admin-text-button" type="button" @onclick="() => EditAsync(project.Id)">Edit</button><button class="admin-text-button" type="button" @onclick="() => TogglePublishAsync(project)">@(project.IsPublished ? "Unpublish" : "Publish")</button><button class="admin-text-button danger" type="button" @onclick="() => DeleteAsync(project.Id)">Delete</button></div></div>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="admin-panel admin-blog-editor-panel">
+            <div class="admin-editor-header"><div><span class="admin-editor-label">CASE STUDY EDITOR</span><h2>@(Editor.Id.HasValue ? "Edit project" : "Create new project")</h2><p>Build a public-safe case study with technology, role, engineering approach and visuals.</p></div></div>
+            <EditForm Model="Editor" OnValidSubmit="SaveAsync" FormName="admin-project-editor" class="admin-editor-form">
+                <DataAnnotationsValidator />
+                <div class="admin-form-section"><div class="admin-form-section-title"><span>01</span><div><strong>Project details</strong><small>Identity and public URL</small></div></div><div class="admin-editor-grid">
+                    <div class="admin-field full"><label>Project title</label><InputText @bind-Value="Editor.Title" placeholder="e.g. Digital Invoicing Platform" /><ValidationMessage For="() => Editor.Title" /></div>
+                    <div class="admin-field"><label>URL slug</label><InputText @bind-Value="Editor.Slug" placeholder="digital-invoicing-platform" /></div>
+                    <div class="admin-field"><label>Sort order</label><InputNumber @bind-Value="Editor.SortOrder" /></div>
+                    <div class="admin-field full"><label>Short summary</label><InputTextArea @bind-Value="Editor.Summary" class="admin-summary-input" /><ValidationMessage For="() => Editor.Summary" /></div>
+                    <div class="admin-field full"><label>Technologies</label><InputText @bind-Value="Editor.Technologies" placeholder=".NET, Web APIs, SQL Server, Azure" /><small>Separate technologies with commas.</small></div>
+                </div></div>
+
+                <div class="admin-form-section"><div class="admin-form-section-title"><span>02</span><div><strong>Visual</strong><small>Project cover image</small></div></div><div class="admin-editor-grid">
+                    <div class="admin-field full"><label>Upload cover image</label><InputFile OnChange="UploadCoverAsync" accept="image/jpeg,image/png,image/webp,image/gif" /><small>JPG, PNG, WebP or GIF. Maximum 5 MB.</small></div>
+                    @if (!string.IsNullOrWhiteSpace(Editor.CoverImageUrl)) { <div class="admin-field full"><img class="admin-project-cover-preview" src="@Editor.CoverImageUrl" alt="Project cover preview" /><small>@Editor.CoverImageUrl</small></div> }
+                </div></div>
+
+                <div class="admin-form-section"><div class="admin-form-section-title"><span>03</span><div><strong>Case study</strong><small>Tell the engineering story</small></div></div><div class="admin-editor-grid">
+                    <div class="admin-field full"><label>Overview</label><InputTextArea @bind-Value="Editor.Description" class="admin-project-textarea" /><ValidationMessage For="() => Editor.Description" /></div>
+                    <div class="admin-field full"><label>The problem</label><InputTextArea @bind-Value="Editor.Problem" class="admin-project-textarea" /></div>
+                    <div class="admin-field full"><label>My role</label><InputTextArea @bind-Value="Editor.Role" class="admin-project-textarea" /></div>
+                    <div class="admin-field full"><label>Engineering approach</label><InputTextArea @bind-Value="Editor.Engineering" class="admin-project-textarea" /></div>
+                    <div class="admin-field full"><label>Confidentiality / public note</label><InputTextArea @bind-Value="Editor.Confidentiality" class="admin-project-textarea" /></div>
+                </div></div>
+
+                <div class="admin-form-section admin-publish-section"><div class="admin-form-section-title"><span>04</span><div><strong>Publishing</strong><small>Control website visibility</small></div></div><div class="admin-setting-cards"><label class="admin-setting-card"><InputCheckbox @bind-Value="Editor.IsPublished" /><span><strong>Publish project</strong><small>Show this case study on the public portfolio.</small></span></label><label class="admin-setting-card"><InputCheckbox @bind-Value="Editor.IsFeatured" /><span><strong>Featured project</strong><small>Prioritize this project in portfolio listings.</small></span></label></div></div>
+
+                <div class="admin-editor-footer"><span>@(Editor.IsPublished ? "This project will be public." : "This project will remain a draft.")</span><div><button type="button" class="admin-secondary-button" @onclick="NewProject">Clear</button><button class="admin-primary-button" type="submit" disabled="@IsSaving">@(IsSaving ? "Saving…" : "Save project")</button></div></div>
+            </EditForm>
+        </section>
+    </div>
+</section>
+
+@code {
+    private List<AdminProjectDto> Projects { get; set; } = [];
+    private AdminProjectEditDto Editor { get; set; } = new();
+    private bool IsLoading = true; private bool IsSaving; private bool IsError; private string StatusMessage = string.Empty;
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+    private async Task LoadAsync(){ try{IsLoading=true;Projects=(await ProjectAdmin.GetAllAsync()).ToList();}catch{IsError=true;StatusMessage="Projects could not be loaded.";}finally{IsLoading=false;} }
+    private void NewProject(){Editor=new AdminProjectEditDto();StatusMessage=string.Empty;IsError=false;}
+    private async Task EditAsync(Guid id){var p=await ProjectAdmin.GetByIdAsync(id);if(p is null)return;Editor=new AdminProjectEditDto{Id=p.Id,Title=p.Title,Slug=p.Slug,Summary=p.Summary,Description=p.Description,Technologies=p.Technologies,CoverImageUrl=p.CoverImageUrl,Problem=p.Problem,Role=p.Role,Engineering=p.Engineering,Confidentiality=p.Confidentiality,IsPublished=p.IsPublished,IsFeatured=p.IsFeatured,SortOrder=p.SortOrder};StatusMessage=string.Empty;IsError=false;}
+    private async Task SaveAsync(){try{IsSaving=true;IsError=false;var id=await ProjectAdmin.SaveAsync(Editor);await LoadAsync();await EditAsync(id);StatusMessage=Editor.IsPublished?"Project saved and published successfully.":"Project saved as draft successfully.";}catch(Exception ex){IsError=true;StatusMessage=ex.Message;}finally{IsSaving=false;}}
+    private async Task TogglePublishAsync(AdminProjectDto p){await ProjectAdmin.SetPublishedAsync(p.Id,!p.IsPublished);await LoadAsync();StatusMessage=p.IsPublished?"Project moved to draft.":"Project published successfully.";}
+    private async Task DeleteAsync(Guid id){await ProjectAdmin.DeleteAsync(id);if(Editor.Id==id)NewProject();await LoadAsync();StatusMessage="Project deleted.";}
+    private async Task UploadCoverAsync(InputFileChangeEventArgs e){try{var file=e.File;if(file.Size>5*1024*1024)throw new InvalidOperationException("Cover image must be 5 MB or smaller.");var ext=Path.GetExtension(file.Name).ToLowerInvariant();if(ext is not ".jpg" and not ".jpeg" and not ".png" and not ".webp" and not ".gif")throw new InvalidOperationException("Unsupported image format.");var slug=string.IsNullOrWhiteSpace(Editor.Slug)?"project":Editor.Slug.Trim().ToLowerInvariant();var folder=Path.Combine(Environment.WebRootPath,"uploads","projects",slug);Directory.CreateDirectory(folder);var name=$"{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}"[..27]+ext;var path=Path.Combine(folder,name);await using var output=File.Create(path);await file.OpenReadStream(5*1024*1024).CopyToAsync(output);Editor.CoverImageUrl=$"/uploads/projects/{slug}/{name}";StatusMessage="Cover image uploaded.";IsError=false;}catch(Exception ex){IsError=true;StatusMessage=ex.Message;}}
+}
